@@ -37,14 +37,16 @@ let users = JSON.parse(localStorage.getItem('gaminghub_users')) || {
     'tomasgarrido512@gmail.com': { password: '12345', role: 'Propietario', warnings: 0, profilePic: 'img/Propietario.png', username: 'Propietario', bannedUntil: 0, banCount: 0 }
 };
 
-// Ensure Propietario is always available
+
 users['tomasgarrido512@gmail.com'] = { password: '12345', role: 'Propietario', warnings: 0, profilePic: 'img/Propietario.png', username: 'Propietario', bannedUntil: 0, banCount: 0 };
 
 let favorites = JSON.parse(localStorage.getItem('gaminghub_favorites')) || [];
 
+let cart = JSON.parse(localStorage.getItem('gaminghub_cart')) || [];
+
 let pendingRequests = JSON.parse(localStorage.getItem('gaminghub_pending')) || [];
 
-// Using Formspree for notifications to moderator
+
 
 window.addEventListener('beforeunload', () => {
     localStorage.setItem('scrollPosition', window.scrollY);
@@ -61,6 +63,59 @@ function saveFavorites() {
 function savePending() {
     localStorage.setItem('gaminghub_pending', JSON.stringify(pendingRequests));
 }
+
+function saveCart() {
+    localStorage.setItem('gaminghub_cart', JSON.stringify(cart));
+}
+
+function addToCart(game) {
+    cart.push(game);
+    saveCart();
+    showSuccessTicket('Juego agregado al carrito');
+    setTimeout(() => hideSuccessTicket(), 3000);
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveCart();
+    displayCart();
+}
+
+function displayCart() {
+    const cartList = document.getElementById('cart-list');
+    const cartTotal = document.getElementById('cart-total');
+    cartList.innerHTML = '';
+    let total = 0;
+    cart.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
+        itemDiv.innerHTML = `
+            <h3>${item.title}</h3>
+            <p>Precio: $${item.price.toFixed(2)}</p>
+            <button onclick="removeFromCart(${index})">Remover</button>
+        `;
+        cartList.appendChild(itemDiv);
+        total += item.price;
+    });
+    cartTotal.innerHTML = `<h3>Total: $${total.toFixed(2)}</h3>`;
+}
+
+// Checkout button functionality
+document.getElementById('checkout-btn').addEventListener('click', () => {
+    if (cart.length === 0) {
+        alert('El carrito está vacío. Agrega juegos antes de proceder al pago.');
+        return;
+    }
+    let message = 'Gracias por tu compra! Has comprado:\n\n';
+    cart.forEach(item => {
+        message += `- ${item.title} - $${item.price.toFixed(2)}\n`;
+    });
+    message += `\nTotal: $${cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}`;
+    alert(message);
+    cart.length = 0; 
+    saveCart();
+    displayCart();
+});
 
 function getRoleProfilePic(userEmail) {
     if (!userEmail || !users[userEmail]) {
@@ -100,7 +155,6 @@ loginBtn.addEventListener('click', () => {
         return;
     }
 
-    // Verificar credenciales localmente
     if (users[email] && users[email].password === password) {
         // Guardar información del usuario
         currentUser = email;
@@ -147,24 +201,20 @@ loginBtn.addEventListener('click', () => {
 });
 
 window.addEventListener('load', async () => {
-    // Fix profilePic for Influencer users in localStorage users object
     let updated = false;
     for (const email in users) {
         if (users[email].role === 'Influencer' && users[email].profilePic !== 'img/Influ.png') {
             users[email].profilePic = 'img/Influ.png';
             updated = true;
         }
-        // Ensure bannedUntil is set for all users
         if (users[email].bannedUntil === undefined) {
             users[email].bannedUntil = 0;
             updated = true;
         }
-        // Ensure banCount is set for all users
         if (users[email].banCount === undefined) {
             users[email].banCount = 0;
             updated = true;
         }
-        // Migrate warnings to array
         if (typeof users[email].warnings === 'number') {
             users[email].warnings = Array(users[email].warnings).fill({comment: '', timestamp: Date.now(), read: true});
             updated = true;
@@ -184,7 +234,6 @@ window.addEventListener('load', async () => {
 
     if (action && email && username) {
         if (action === 'approve' && (currentRole === 'Moderador' || currentRole === 'Propietario')) {
-            // Find and approve the request
             const index = pendingRequests.findIndex(req => req.email === email && req.username === username);
             if (index !== -1) {
             users[email] = {
@@ -218,9 +267,7 @@ window.addEventListener('load', async () => {
     const savedToken = localStorage.getItem('token');
 
     if (savedUser && savedRole && savedToken) {
-        // Usar datos locales para verificar sesión
         if (users[savedUser]) {
-            // Check if banned
             if (users[savedUser].bannedUntil && users[savedUser].bannedUntil > Date.now()) {
                 loginContainer.style.display = 'none';
                 mainContent.style.display = 'none';
@@ -228,7 +275,6 @@ window.addEventListener('load', async () => {
                 banScreen.style.display = 'flex';
                 const remaining = Math.ceil((users[savedUser].bannedUntil - Date.now()) / (60 * 1000));
                 banScreen.querySelector('p').textContent = `¡Estás baneado! Regresa en ${remaining} minutos.`;
-                // Check every 10 seconds if ban time passed
                 const checkUnban = setInterval(() => {
                     if (Date.now() > users[savedUser].bannedUntil) {
                         clearInterval(checkUnban);
@@ -270,7 +316,6 @@ window.addEventListener('load', async () => {
             }
         });
 
-        // Restore active tab
         const savedTab = localStorage.getItem('activeTab') || 'profile';
         document.querySelectorAll('.tab-content').forEach(content => {
             if (content.id === savedTab) {
@@ -298,7 +343,6 @@ window.addEventListener('load', async () => {
             }
         });
 
-        // Populate profile if needed
         if (savedTab === 'profile' && currentUser) {
             document.getElementById('profile-username').value = users[currentUser].username || '';
             document.getElementById('profile-email').value = currentUser;
@@ -306,14 +350,12 @@ window.addEventListener('load', async () => {
             document.getElementById('profile-pic').src = users[currentUser].profilePic || getRoleProfilePic(currentUser);
         }
 
-        // Restore scroll position
         const savedScroll = localStorage.getItem('scrollPosition');
         if (savedScroll) {
             window.scrollTo(0, parseInt(savedScroll));
         }
     }
 
-    // Restore active form (login or register)
     const activeForm = localStorage.getItem('activeForm') || 'login';
     if (activeForm === 'register') {
         loginForm.style.display = 'none';
@@ -332,28 +374,26 @@ const news = JSON.parse(localStorage.getItem('gaminghub_news')) || [
     { title: 'Nuevo juego de Batman anunciado', content: 'DC Comics revela el próximo título de Batman con gráficos revolucionarios.', comments: [], image: 'img/Batman.png', author: 'influencer@gaminghub.com' },
     { title: 'Outlast Trials: Nuevo horror cooperativo', content: 'Red Barrels lanza Outlast Trials, un juego de horror en primera persona con modo cooperativo.', comments: [], image: 'img/Outlast.png', author: 'influencer@gaminghub.com' },
     { title: 'Nuevo evento en Brawl Stars', content: 'Supercell lanza un evento especial en Brawl Stars con nuevos personajes y desafíos.', comments: [], image: 'img/BrawlStars.png', author: 'influencer@gaminghub.com' },
-    { title: 'Actualización de Brawl Stars', content: 'Nueva temporada en Brawl Stars con brawlers exclusivos y modos de juego emocionantes.', comments: [], image: 'img/BrawlStars.png', author: 'influencer@gaminghub.com' },
     { title: 'Nueva actualización de Minecraft', content: 'Mojang Studios lanza una nueva actualización con biomas, mobs y características innovadoras.', comments: [], image: 'img/Minecraft.png', author: 'influencer@gaminghub.com' }
 ];
 
 const debates = JSON.parse(localStorage.getItem('gaminghub_debates')) || [
-    { title: '¿Clash Royale o Fortnite?', content: '¿Cuál es mejor para batallas rápidas?', comments: [], image: 'img/ClashRoyale.png', author: 'influencer@gaminghub.com' },
-    { title: 'Roblox: ¿Juego o plataforma?', content: 'Debate sobre el futuro de los juegos creados por usuarios.', comments: [], image: 'img/Roblox.png', author: 'influencer@gaminghub.com' },
-    { title: '¿Batman: Arkham o Injustice?', content: 'Debate sobre cuál saga de Batman es superior.', comments: [], image: 'img/Batman.png', author: 'influencer@gaminghub.com' },
-    { title: '¿Outlast Trials: Terror cooperativo?', content: '¿Es Outlast Trials el mejor juego de horror cooperativo del momento?', comments: [], image: 'img/Outlast.png', author: 'influencer@gaminghub.com' },
-    { title: '¿Brawl Stars o Clash Royale?', content: '¿Cuál es mejor para batallas estratégicas?', comments: [], image: 'img/BrawlStars.png', author: 'influencer@gaminghub.com' },
-    { title: '¿Brawl Stars: Estrategia o acción?', content: 'Debate sobre si Brawl Stars es más estratégico o de acción pura.', comments: [], image: 'img/BrawlStars.png', author: 'influencer@gaminghub.com' },
-    { title: '¿Minecraft: Creatividad o supervivencia?', content: 'Debate sobre si Minecraft es más sobre creatividad o supervivencia.', comments: [], image: 'img/Minecraft.png', author: 'influencer@gaminghub.com' }
+    { title: '¿Clash Royale o Fortnite?', content: '¿Cuál es mejor para batallas rápidas?', comments: [], image: 'img/Emote.png', author: 'influencer@gaminghub.com' },
+    { title: 'Roblox: ¿Juego o plataforma?', content: 'Debate sobre el futuro de los juegos creados por usuarios.', comments: [], image: 'img/Roblox2.png', author: 'influencer@gaminghub.com' },
+    { title: '¿Batman: Arkham o Injustice?', content: 'Debate sobre cuál saga de Batman es superior.', comments: [], image: 'img/Batman2.png', author: 'influencer@gaminghub.com' },
+    { title: '¿Outlast Trials: Terror cooperativo?', content: '¿Es Outlast Trials el mejor juego de horror cooperativo del momento?', comments: [], image: 'img/Outlast2.png', author: 'influencer@gaminghub.com' },
+    { title: '¿Brawl Stars o Clash Royale?', content: '¿Cuál es mejor para batallas estratégicas?', comments: [], image: 'img/BrawlStars2.png', author: 'influencer@gaminghub.com' },
+    { title: '¿Minecraft: Creatividad o supervivencia?', content: 'Debate sobre si Minecraft es más sobre creatividad o supervivencia.', comments: [], image: 'img/Minecraft2.png', author: 'influencer@gaminghub.com' }
 ];
 
 const games = JSON.parse(localStorage.getItem('gaminghub_games')) || [
-    { title: 'Clash Royale', category: 'strategy', description: 'Juego de estrategia en tiempo real.', image: 'img/ClashRoyale.png', author: 'influencer@gaminghub.com' },
-    { title: 'Fortnite', category: 'action', description: 'Battle royale con construcción.', image: 'img/Fornite.png', author: 'influencer@gaminghub.com' },
-    { title: 'Roblox', category: 'adventure', description: 'Plataforma de juegos creados por usuarios.', image: 'img/Roblox.png', author: 'influencer@gaminghub.com' },
-    { title: 'Batman', category: 'action', description: 'Juego de acción y aventura con el Caballero Oscuro.', image: 'img/Batman.png', author: 'influencer@gaminghub.com' },
-    { title: 'Outlast Trials', category: 'horror', description: 'Juego de horror cooperativo en primera persona.', image: 'img/Outlast.png', author: 'influencer@gaminghub.com' },
-    { title: 'Brawl Stars', category: 'strategy', description: 'Juego de batalla multijugador en tiempo real con personajes únicos.', image: 'img/BrawlStars.png', author: 'influencer@gaminghub.com' },
-    { title: 'Minecraft', category: 'adventure', description: 'Juego de construcción y exploración en un mundo abierto.', image: 'img/Minecraft.png', author: 'influencer@gaminghub.com' }
+    { title: 'Clash Royale', category: 'strategy', description: 'Juego de estrategia en tiempo real.', image: 'img/ClashRoyale3.png', author: 'influencer@gaminghub.com', price: 0 },
+    { title: 'Fortnite', category: 'action', description: 'Battle royale con construcción.', image: 'img/Fornite3.png', author: 'influencer@gaminghub.com', price: 0 },
+    { title: 'Roblox', category: 'adventure', description: 'Plataforma de juegos creados por usuarios.', image: 'img/Roblox3.png', author: 'influencer@gaminghub.com', price: 0 },
+    { title: 'Batman', category: 'action', description: 'Juego de acción y aventura con el Caballero Oscuro.', image: 'img/Batman3.png', author: 'influencer@gaminghub.com', price: 29.99 },
+    { title: 'Outlast Trials', category: 'horror', description: 'Juego de horror cooperativo en primera persona.', image: 'img/Outlast3.png', author: 'influencer@gaminghub.com', price: 19.99 },
+    { title: 'Brawl Stars', category: 'strategy', description: 'Juego de batalla multijugador en tiempo real con personajes únicos.', image: 'img/BrawlStars3.png', author: 'influencer@gaminghub.com', price: 0 },
+    { title: 'Minecraft', category: 'adventure', description: 'Juego de construcción y exploración en un mundo abierto.', image: 'img/Minecraft3.png', author: 'influencer@gaminghub.com', price: 26.95 }
 ];
 
 function saveNews() {
@@ -439,7 +479,7 @@ function createCommentElement(comment, debateIndex = null, newsIndex = null) {
                 const warningCount = users[comment.author].warnings.length;
         if (warningCount >= 3) {
             users[comment.author].banCount = (users[comment.author].banCount || 0) + 1;
-            users[comment.author].warnings = []; // Reset warnings after ban
+            users[comment.author].warnings = []; 
             if (users[comment.author].banCount === 1) {
                 users[comment.author].bannedUntil = Date.now() + 10 * 60 * 1000; // 10 minutes
             } else if (users[comment.author].banCount === 2) {
@@ -448,7 +488,6 @@ function createCommentElement(comment, debateIndex = null, newsIndex = null) {
                 users[comment.author].bannedUntil = Date.now() + 24 * 60 * 60 * 1000; // 1 day
             }
 
-            // Show animation for report section when banning user
             const reportsSection = document.getElementById('reports');
             if (reportsSection) {
                 reportsSection.style.display = 'block';
@@ -526,6 +565,29 @@ async function displayNews() {
             });
 
             itemDiv.appendChild(commentsDiv);
+            if (currentRole === 'Moderador' || currentRole === 'Propietario') {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'Eliminar Publicación';
+                deleteBtn.onclick = () => {
+                    const reason = prompt('Razón para eliminar la publicación:');
+                    if (reason !== null) {
+                        if (item.author && users[item.author]) {
+                            const warning = {
+                                comment: `Tu publicación "${item.title}" fue eliminada por: ${reason}`,
+                                timestamp: Date.now(),
+                                read: false
+                            };
+                            users[item.author].warnings.push(warning);
+                            saveUsers();
+                        }
+                        news.splice(index, 1);
+                        saveNews();
+                        updateUI();
+                    }
+                };
+                itemDiv.appendChild(deleteBtn);
+            }
             if (currentRole !== 'Propietario') {
                 const commentForm = document.createElement('form');
                 commentForm.innerHTML = `
@@ -590,6 +652,29 @@ async function displayNews() {
             });
 
             itemDiv.appendChild(commentsDiv);
+            if (currentRole === 'Moderador' || currentRole === 'Propietario') {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'Eliminar Publicación';
+                deleteBtn.onclick = () => {
+                    const reason = prompt('Razón para eliminar la publicación:');
+                    if (reason !== null) {
+                        if (item.author && users[item.author]) {
+                            const warning = {
+                                comment: `Tu publicación "${item.title}" fue eliminada por: ${reason}`,
+                                timestamp: Date.now(),
+                                read: false
+                            };
+                            users[item.author].warnings.push(warning);
+                            saveUsers();
+                        }
+                        news.splice(index, 1);
+                        saveNews();
+                        updateUI();
+                    }
+                };
+                itemDiv.appendChild(deleteBtn);
+            }
             if (currentRole !== 'Propietario') {
                 const commentForm = document.createElement('form');
                 commentForm.innerHTML = `
@@ -658,6 +743,29 @@ async function displayDebates() {
             });
 
             itemDiv.appendChild(commentsDiv);
+            if (currentRole === 'Moderador' || currentRole === 'Propietario') {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'Eliminar Publicación';
+                deleteBtn.onclick = () => {
+                    const reason = prompt('Razón para eliminar la publicación:');
+                    if (reason !== null) {
+                        if (item.author && users[item.author]) {
+                            const warning = {
+                                comment: `Tu publicación "${item.title}" fue eliminada por: ${reason}`,
+                                timestamp: Date.now(),
+                                read: false
+                            };
+                            users[item.author].warnings.push(warning);
+                            saveUsers();
+                        }
+                        debates.splice(index, 1);
+                        saveDebates();
+                        updateUI();
+                    }
+                };
+                itemDiv.appendChild(deleteBtn);
+            }
             if (currentRole !== 'Propietario') {
                 const commentForm = document.createElement('form');
                 commentForm.innerHTML = `
@@ -722,6 +830,29 @@ async function displayDebates() {
             });
 
             itemDiv.appendChild(commentsDiv);
+            if (currentRole === 'Moderador' || currentRole === 'Propietario') {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'Eliminar Publicación';
+                deleteBtn.onclick = () => {
+                    const reason = prompt('Razón para eliminar la publicación:');
+                    if (reason !== null) {
+                        if (item.author && users[item.author]) {
+                            const warning = {
+                                comment: `Tu publicación "${item.title}" fue eliminada por: ${reason}`,
+                                timestamp: Date.now(),
+                                read: false
+                            };
+                            users[item.author].warnings.push(warning);
+                            saveUsers();
+                        }
+                        debates.splice(index, 1);
+                        saveDebates();
+                        updateUI();
+                    }
+                };
+                itemDiv.appendChild(deleteBtn);
+            }
             if (currentRole !== 'Propietario') {
                 const commentForm = document.createElement('form');
                 commentForm.innerHTML = `
@@ -768,6 +899,15 @@ function displayGames() {
         const p = document.createElement('p');
         p.textContent = item.description;
         itemDiv.appendChild(p);
+
+        const priceP = document.createElement('p');
+        priceP.textContent = item.price > 0 ? `Precio: $${item.price.toFixed(2)}` : 'Gratis';
+        itemDiv.appendChild(priceP);
+
+        const addBtn = document.createElement('button');
+        addBtn.textContent = 'Agregar al Carrito';
+        addBtn.onclick = () => addToCart(item);
+        itemDiv.appendChild(addBtn);
 
         gameGallery.appendChild(itemDiv);
     });
@@ -832,33 +972,37 @@ function displayPendingRequests() {
         const approveBtn = document.createElement('button');
         approveBtn.textContent = 'Aprobar';
         approveBtn.onclick = () => {
-            // Create user account
-            users[request.email] = {
-                password: 'moderator123', // Default password
-                username: request.username,
-                role: 'Moderador',
-                warnings: [],
-                profilePic: 'img/Moderador.png',
-                bannedUntil: 0,
-                banCount: 0
-            };
-            saveUsers();
+            if (currentRole !== 'Propietario') {
+                alert('Solo el propietario puede aprobar solicitudes de moderador.');
+                return;
+            }
+            if (users[request.email]) {
+                // Update existing user to Moderator
+                users[request.email].role = 'Moderador';
+                users[request.email].warnings = [];
+                users[request.email].profilePic = 'img/Moderador.png';
+                users[request.email].bannedUntil = 0;
+                users[request.email].banCount = 0;
+                saveUsers();
+                alert('Solicitud aprobada. Usuario actualizado a Moderador.');
+            } else {
+                // Create new user account
+                users[request.email] = {
+                    password: 'moderator123', // Default password
+                    username: request.username,
+                    role: 'Moderador',
+                    warnings: [],
+                    profilePic: 'img/Moderador.png',
+                    bannedUntil: 0,
+                    banCount: 0
+                };
+                saveUsers();
+                alert('Solicitud aprobada. Usuario creado con contraseña "moderator123".');
+            }
             // Remove from pending
             pendingRequests.splice(index, 1);
             savePending();
             displayPendingRequests();
-            alert('Solicitud aprobada. Usuario creado con contraseña "moderator123".');
-
-            // Send email to user
-            emailjs.send('your_service_id', 'your_template_id', {
-                to_email: request.email,
-                subject: 'Solicitud de Moderador Aprobada',
-                message: 'Tu solicitud ha sido aprobada. Inicia sesión aquí: https://gaminghub.com con tu email y contraseña moderator123.'
-            }).then(() => {
-                alert('Email enviado al usuario.');
-            }, (error) => {
-                console.error('Error sending email:', error);
-            });
         };
         itemDiv.appendChild(approveBtn);
 
@@ -947,15 +1091,16 @@ async function updateUI() {
     await displayNews();
     await displayDebates();
     displayGames();
+    displayCart();
     displayFavorites();
     displayWarningNotifications();
 
-    if (currentRole === 'Moderador' || currentRole === 'Propietario') {
-        document.getElementById('moderator-section').style.display = 'block';
-        displayPendingRequests();
-    } else {
-        document.getElementById('moderator-section').style.display = 'none';
-    }
+if (currentRole === 'Propietario') {
+    document.getElementById('moderation-tab').style.display = 'inline-block';
+    displayPendingRequests();
+} else {
+    document.getElementById('moderation-tab').style.display = 'none';
+}
 
     if (currentRole === 'Influencer') {
         newsFormContainer.style.display = 'block';
@@ -1320,7 +1465,7 @@ document.getElementById('game-form').addEventListener('submit', (e) => {
     const imageInput = document.getElementById('game-image');
     const image = imageInput.files[0] ? URL.createObjectURL(imageInput.files[0]) : 'img/default_game.jpg';
 
-    games.push({ title, category, description, image, author: currentUser });
+    games.push({ title, category, description, image, author: currentUser, price: 0 });
     saveGames();
     updateUI();
     e.target.reset();

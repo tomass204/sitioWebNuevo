@@ -16,6 +16,13 @@ REPOSITORIO GIT
 - Repositorio oficial: https://github.com/tomass204/Sitio-web-GamingHub
 - Clona el proyecto: git clone https://github.com/tomass204/Sitio-web-GamingHub.git
 - Contribuciones bienvenidas vía pull requests
+-  usamos tambien estos comandos: 
+
+git add .   -- Agrega los cambios  al “stage”
+
+git commit -m "Mensaje de Cambio" -- es el mensaje que describe qué cambios hiciste.
+
+git push origin main  -- Sube tus commits a GitHub.
 
 ================================================================================
 CARACTERÍSTICAS PRINCIPALES
@@ -23,9 +30,9 @@ CARACTERÍSTICAS PRINCIPALES
 
 1. AUTENTICACIÓN Y ROLES DE USUARIO:
    - Sistema de login/registro con validación
-   - Tres roles: Usuario Básico, Influencer, Moderador
-   - Perfiles personalizables con fotos
-   - Sistema de baneo para moderadores
+   - Cuatro roles: Usuario Básico, Influencer, Moderador, Propietario
+   - Perfiles personalizables con fotos de rol
+   - Sistema de baneo progresivo (10 min, 1 hora, 1 día)
 
 2. CONTENIDO DINÁMICO:
    - Publicación de noticias con imágenes
@@ -34,12 +41,19 @@ CARACTERÍSTICAS PRINCIPALES
    - Sistema de favoritos para guardar contenido
 
 3. INTERACCIÓN SOCIAL:
-   - Comentarios en publicaciones
+   - Comentarios en publicaciones con likes
    - Sistema de likes y reacciones
    - Reportes de contenido inapropiado
-   - Moderación de comunidad
+   - Moderación avanzada de comunidad
 
-4. INTERFAZ MODERNA:
+4. SISTEMA DE MODERACIÓN AVANZADO:
+   - Advertencias a usuarios por comentarios inapropiados
+   - Eliminación de publicaciones con razón obligatoria
+   - Notificaciones de advertencias a autores
+   - Solicitudes pendientes para rol de moderador
+   - Panel administrativo para moderadores y propietario
+
+5. INTERFAZ MODERNA:
    - Diseño responsivo con tema gaming oscuro
    - Animaciones y efectos visuales
    - Navegación por pestañas
@@ -134,9 +148,9 @@ DESTACADOS DEL CÓDIGO
    - Tema oscuro con acentos de color
 
 3. SISTEMA DE ROLES ROBUSTO:
-   - Tres niveles de permisos claramente definidos
+   - Cuatro niveles de permisos claramente definidos (Usuario Básico, Influencer, Moderador, Propietario)
    - UI condicional basada en roles
-   - Herramientas de moderación específicas
+   - Herramientas de moderación específicas y progresivas
 
 4. INTERACTIVIDAD AVANZADA:
    - Sistema de pestañas con transiciones suaves
@@ -185,7 +199,6 @@ DESPLIEGUE Y EJECUCIÓN
 DESARROLLO LOCAL:
 1. Instalar dependencias: npm install
 2. Ejecutar servidor: npm run dev
-3. Abrir en navegador: http://localhost:5173
 
 PRODUCCIÓN:
 - Desplegado en Netlify

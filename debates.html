@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GamingHub -  debates</title>
+    <title>GamingHub - debates</title>
     <link rel="stylesheet" href="CSS/styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -91,7 +91,9 @@
             <button class="tab-button" data-tab="news"><i class="fas fa-newspaper"></i> Noticias</button>
             <button class="tab-button" data-tab="debates"><i class="fas fa-comments"></i> Debates</button>
             <button class="tab-button" data-tab="games"><i class="fas fa-gamepad"></i> Juegos</button>
+            <button class="tab-button" data-tab="cart"><i class="fas fa-shopping-cart"></i> Carrito</button>
             <button class="tab-button active" data-tab="favorites" id="favorites-tab"><i class="fas fa-heart"></i> Favoritos</button>
+            <button class="tab-button" data-tab="moderation" id="moderation-tab" style="display: none;"><i class="fas fa-gavel"></i> Moderación</button>
             <button class="tab-button" data-tab="about"><i class="fas fa-info-circle"></i> Acerca de</button>
         </nav>
 
@@ -111,17 +113,6 @@
                     <input type="password" id="profile-password" placeholder="Ingresa nueva contraseña (opcional)" />
                     <button type="submit" id="update-profile-btn">Actualizar Perfil</button>
                 </form>
-            </div>
-
-            <div id="moderator-section" style="display: none;">
-                <h3>Herramientas de Moderador</h3>
-                <div class="moderator-tools">
-                    <button id="view-reports-btn">Ver Reportes</button>
-                    <button id="manage-users-btn">Gestionar Usuarios</button>
-                    <button id="moderator-settings-btn">Configuración de Moderador</button>
-                </div>
-                <h3>Solicitudes Pendientes de Moderador</h3>
-                <div id="pending-list"></div>
             </div>
         </section>
 
@@ -187,10 +178,32 @@
             </div>
         </section>
 
+        <section id="cart" class="section tab-content">
+            <h2>Carrito de Compras</h2>
+            <p>Revisa y gestiona tus juegos seleccionados.</p>
+            <div id="cart-list"></div>
+            <div id="cart-total"></div>
+            <button id="checkout-btn">Proceder al Pago</button>
+        </section>
+
         <section id="favorites" class="section tab-content active">
             <h2>Favoritos</h2>
             <p>Tus comentarios guardados.</p>
             <div id="favorites-list"></div>
+        </section>
+        <section id="moderation" class="section tab-content">
+            <h2>Moderación</h2>
+            <p>Gestiona solicitudes de moderador y herramientas de moderación.</p>
+            <div id="moderator-section">
+                <h3>Herramientas de Moderador</h3>
+                <div class="moderator-tools">
+                    <button id="view-reports-btn">Ver Reportes</button>
+                    <button id="manage-users-btn">Gestionar Usuarios</button>
+                    <button id="moderator-settings-btn">Configuración de Moderador</button>
+                </div>
+                <h3>Solicitudes Pendientes de Moderador</h3>
+                <div id="pending-list"></div>
+            </div>
         </section>
         <section id="about" class="section tab-content">
             <h2>Acerca de Nosotros</h2>
@@ -219,6 +232,7 @@
     <script src="webclient/favorites.js"></script>
     <script src="webclient/moderation.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
 
     <footer>
         <p> © 2025 GamingHub. Todos los derechos reservados.</p>
