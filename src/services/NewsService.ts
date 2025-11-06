@@ -1,3 +1,16 @@
+const storage = (() => {
+  try {
+    localStorage.setItem('test', 'test');
+    localStorage.removeItem('test');
+    return localStorage;
+  } catch (e) {
+    return {
+      getItem: (key: string) => (window as any)[key] || '[]',
+      setItem: (key: string, value: string) => (window as any)[key] = value
+    };
+  }
+})();
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -14,6 +27,7 @@ export interface Comment {
   author: string;
   likes: number;
   liked: boolean;
+  favorite: boolean;
   createdAt: string;
 }
 
@@ -27,6 +41,7 @@ export class NewsService {
   }
 
   static async getAllNews(): Promise<NewsItem[]> {
+    console.log('Calling GET ALL NEWS endpoint');
     // Simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -64,8 +79,12 @@ export class NewsService {
             }
           ];
           this.saveNews(defaultNews);
+          console.log('News initialized with default data');
+          console.log('News:', defaultNews);
           resolve(defaultNews);
         } else {
+          console.log('News retrieved successfully, status: 200, count:', news.length);
+          console.log('News:', news);
           resolve(news);
         }
       }, 100);
@@ -89,7 +108,7 @@ export class NewsService {
     return newItem;
   }
 
-  static async addComment(newsId: string, commentData: Omit<Comment, 'id' | 'likes' | 'liked' | 'createdAt'>): Promise<void> {
+  static async addComment(newsId: string, commentData: Omit<Comment, 'id' | 'likes' | 'liked' | 'favorite' | 'createdAt'>): Promise<void> {
     console.log('Calling ADD COMMENT endpoint for news:', newsId, 'with data:', commentData);
 
     const news = this.getNews();
@@ -101,11 +120,40 @@ export class NewsService {
         id: Date.now().toString(),
         likes: 0,
         liked: false,
+        favorite: false,
         createdAt: new Date().toISOString()
       };
 
       newsItem.comments.push(newComment);
       this.saveNews(news);
+
+      // Add to global comments for moderation
+      const globalComments = JSON.parse(localStorage.getItem('gaminghub_comments') || '[]');
+      globalComments.push({
+        id: newComment.id,
+        userEmail: commentData.author,
+        username: commentData.author.split('@')[0], // Extract username from email
+        content: commentData.text,
+        timestamp: newComment.createdAt,
+        type: 'news'
+      });
+      localStorage.setItem('gaminghub_comments', JSON.stringify(globalComments));
+
+      // Also add to news-specific comments for moderation
+      const newsComments = JSON.parse(localStorage.getItem('gaminghub_news_comments') || '[]');
+      newsComments.push({
+        id: newComment.id,
+        userEmail: commentData.author,
+        username: commentData.author.split('@')[0], // Extract username from email
+        content: commentData.text,
+        timestamp: newComment.createdAt,
+        type: 'news'
+      });
+      localStorage.setItem('gaminghub_news_comments', JSON.stringify(newsComments));
+
+      // Dispatch event to update ModerationTab
+      window.dispatchEvent(new Event('commentsUpdated'));
+
       console.log('Comment added successfully to news:', newsItem.title);
     } else {
       console.log('Failed to add comment: News not found');
@@ -120,16 +168,69 @@ export class NewsService {
 
     if (newsItem) {
       const comment = newsItem.comments.find(c => c.id === commentId);
-      if (comment && !comment.liked) {
-        comment.likes++;
-        comment.liked = true;
+      if (comment) {
+        if (comment.liked) {
+          comment.likes--;
+          comment.liked = false;
+          console.log('Comment unliked successfully');
+        } else {
+          comment.likes++;
+          comment.liked = true;
+          console.log('Comment liked successfully');
+        }
         this.saveNews(news);
-        console.log('Comment liked successfully');
       } else {
-        console.log('Failed to like comment: Comment not found or already liked');
+        console.log('Failed to like/unlike comment: Comment not found');
       }
     } else {
-      console.log('Failed to like comment: News not found');
+      console.log('Failed to like/unlike comment: News not found');
+    }
+  }
+
+  static async favoriteComment(newsId: string, commentId: string): Promise<void> {
+    console.log('Calling FAVORITE COMMENT endpoint for news:', newsId, 'comment:', commentId);
+
+    const news = this.getNews();
+    const newsItem = news.find(item => item.id === newsId);
+
+    if (newsItem) {
+      const comment = newsItem.comments.find(c => c.id === commentId);
+      if (comment) {
+        comment.favorite = !comment.favorite;
+
+        // Update favorites in storage
+        const favorites = JSON.parse(storage.getItem('gaminghub_favorites') || '[]');
+        if (comment.favorite) {
+          // Add to favorites
+          const favoriteItem = {
+            type: 'news',
+            id: comment.id,
+            content: comment.text,
+            author: comment.author,
+            likes: comment.likes,
+            liked: comment.liked,
+            favorite: comment.favorite,
+            createdAt: comment.createdAt
+          };
+          favorites.push(favoriteItem);
+          storage.setItem('gaminghub_favorites', JSON.stringify(favorites));
+          console.log(`Comentario favorito en noticia ID: ${newsId}, Usuario ID: ${comment.author}, Comentario: ${comment.text}`);
+        } else {
+          // Remove from favorites
+          const updatedFavorites = favorites.filter((fav: any) => fav.id !== comment.id);
+          storage.setItem('gaminghub_favorites', JSON.stringify(updatedFavorites));
+          console.log('Comment removed from favorites');
+        }
+        // Dispatch event to update FavoritesTab
+        window.dispatchEvent(new Event('favoritesUpdated'));
+
+        this.saveNews(news);
+        console.log('Comment favorite toggled successfully');
+      } else {
+        console.log('Failed to favorite comment: Comment not found');
+      }
+    } else {
+      console.log('Failed to favorite comment: News not found');
     }
   }
 

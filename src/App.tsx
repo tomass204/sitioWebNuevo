@@ -32,45 +32,47 @@ const App: React.FC = () => {
   const [banTimeRemaining, setBanTimeRemaining] = useState(0);
 
   useEffect(() => {
+    // Initialize default users if they don't exist
+    UserService.initializeDefaultUsers();
+
+    // Ensure owner account exists
+    let ownerUser = UserService.getUser('propietario@gmail.com');
+    if (!ownerUser) {
+      console.log('Owner account not found, creating it...');
+      UserService.createUser('propietario@gmail.com', '123456', 'Propietario2', 'Propietario');
+      ownerUser = UserService.getUser('propietario@gmail.com');
+    }
+
     // Check for existing session
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUserEmail = localStorage.getItem('currentUser');
     const savedRole = localStorage.getItem('currentRole');
     const savedToken = localStorage.getItem('token');
 
-    if (savedUser && savedRole && savedToken) {
-      const user = UserService.getUser(savedUser);
-      if (user) {
+    if (savedUserEmail && savedRole && savedToken) {
+      // Restore existing session
+      const user = UserService.getUser(savedUserEmail);
+      if (user && user.role === savedRole) {
         // Check if user is banned
         if (user.bannedUntil && user.bannedUntil > Date.now()) {
           setIsBanned(true);
           const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
           setBanTimeRemaining(remaining);
-          
-          // Check every 10 seconds if ban time passed
-          const checkUnban = setInterval(() => {
-            if (Date.now() > user.bannedUntil) {
-              clearInterval(checkUnban);
-              setIsBanned(false);
-              setCurrentUser(user);
-              setCurrentRole(savedRole);
-              setIsLoggedIn(true);
-            } else {
-              const newRemaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
-              setBanTimeRemaining(newRemaining);
-            }
-          }, 10000);
-        } else {
-          setCurrentUser(user);
-          setCurrentRole(savedRole);
-          setIsLoggedIn(true);
+          return;
         }
+
+        setCurrentUser(user);
+        setCurrentRole(user.role);
+        setIsLoggedIn(true);
+        console.log('Session restored for user:', savedUserEmail);
       } else {
-        // User doesn't exist, clear session
+        // Invalid session, clear it
         localStorage.removeItem('currentUser');
         localStorage.removeItem('currentRole');
         localStorage.removeItem('token');
+        console.log('Invalid session cleared');
       }
     }
+    // If no valid session, stay on login screen
   }, []);
 
   const handleLogin = (email: string, password: string) => {

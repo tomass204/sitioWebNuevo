@@ -10,6 +10,7 @@ interface CartItem {
   image: string;
   description: string;
   quantity: number;
+  downloadUrl?: string;
 }
 
 interface CartTabProps {
@@ -25,36 +26,63 @@ const CartTab: React.FC<CartTabProps> = ({ currentUser, currentRole }) => {
     loadCart();
   }, []);
 
-  const loadCart = () => {
-    const cartData = JSON.parse(localStorage.getItem('gaminghub_cart') || '[]');
-    setCart(cartData);
-    const cartTotal = cartData.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
+  const loadCart = async () => {
+    if (!currentUser) return;
+
+    console.log('Calling GET CART endpoint');
+    const cartData = JSON.parse(localStorage.getItem(`gaminghub_cart_${currentUser.email}`) || '[]');
+
+    // Get current games to ensure we have the latest download URLs
+    const currentGames = await GameService.getAllGames();
+    const gamesMap = new Map(currentGames.map(game => [game.id, game]));
+
+    // Update cart with latest download URLs
+    const updatedCart = cartData.map((item: CartItem) => {
+      const currentGame = gamesMap.get(item.id);
+      if (currentGame && currentGame.downloadUrl) {
+        return { ...item, downloadUrl: currentGame.downloadUrl };
+      }
+      return item;
+    });
+
+    console.log('Cart retrieved successfully, status: 200');
+    console.log(updatedCart);
+    setCart(updatedCart);
+    const cartTotal = updatedCart.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
     setTotal(cartTotal);
   };
 
   const removeFromCart = (index: number) => {
+    if (!currentUser) return;
+
+    console.log('Calling DELETE FROM CART endpoint for item:', cart[index].title, 'with data:', cart[index]);
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
-    localStorage.setItem('gaminghub_cart', JSON.stringify(newCart));
+    localStorage.setItem(`gaminghub_cart_${currentUser.email}`, JSON.stringify(newCart));
     const cartTotal = newCart.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
     setTotal(cartTotal);
+    console.log('Item deleted from cart successfully, status: 200');
   };
 
   const increaseQuantity = (index: number) => {
+    if (!currentUser) return;
+
     const newCart = [...cart];
     newCart[index].quantity += 1;
     setCart(newCart);
-    localStorage.setItem('gaminghub_cart', JSON.stringify(newCart));
+    localStorage.setItem(`gaminghub_cart_${currentUser.email}`, JSON.stringify(newCart));
     const cartTotal = newCart.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
     setTotal(cartTotal);
   };
 
   const decreaseQuantity = (index: number) => {
+    if (!currentUser) return;
+
     const newCart = [...cart];
     if (newCart[index].quantity > 1) {
       newCart[index].quantity -= 1;
       setCart(newCart);
-      localStorage.setItem('gaminghub_cart', JSON.stringify(newCart));
+      localStorage.setItem(`gaminghub_cart_${currentUser.email}`, JSON.stringify(newCart));
       const cartTotal = newCart.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
       setTotal(cartTotal);
     }
@@ -108,6 +136,18 @@ const CartTab: React.FC<CartTabProps> = ({ currentUser, currentRole }) => {
     }
 
     try {
+      console.log('Calling POST PURCHASE endpoint with data:', {
+        user: currentUser.email,
+        items: cart,
+        paymentDetails: {
+          cardNumber: cardDetails.cardNumber,
+          expiryDate: cardDetails.expiryDate,
+          cvv: cardDetails.cvv,
+          cardholderName: cardDetails.cardholderName
+        },
+        total: total
+      });
+
       // Purchase each game in cart
       for (const item of cart) {
         const result = await GameService.purchaseGame(currentUser.email, item.id);
@@ -116,6 +156,27 @@ const CartTab: React.FC<CartTabProps> = ({ currentUser, currentRole }) => {
           return;
         }
       }
+
+      // Get current games to ensure we have the latest download URLs for purchases
+      const currentGames = await GameService.getAllGames();
+      const gamesMap = new Map(currentGames.map(game => [game.id, game]));
+
+      // Save purchase to pending purchases with latest download URLs
+      const purchaseData = cart.map(item => {
+        const currentGame = gamesMap.get(item.id);
+        return {
+          ...item,
+          purchaseDate: new Date().toISOString(),
+          total: item.price * item.quantity,
+          status: 'Comprado',
+          downloadUrl: currentGame?.downloadUrl || item.downloadUrl
+        };
+      });
+      const existingPurchases = JSON.parse(localStorage.getItem(`gaminghub_pending_purchases_${currentUser.email}`) || '[]');
+      const updatedPurchases = [...existingPurchases, ...purchaseData];
+      localStorage.setItem(`gaminghub_pending_purchases_${currentUser.email}`, JSON.stringify(updatedPurchases));
+
+      console.log('Purchase processed successfully, status: 200');
 
       // Simulate purchase
       let purchaseMessage = '¡Compra exitosa! Has comprado:\n\n';
@@ -137,7 +198,7 @@ const CartTab: React.FC<CartTabProps> = ({ currentUser, currentRole }) => {
 
       // Clear cart
       setCart([]);
-      localStorage.setItem('gaminghub_cart', JSON.stringify([]));
+      localStorage.setItem(`gaminghub_cart_${currentUser.email}`, JSON.stringify([]));
       setTotal(0);
     } catch (error) {
       console.error('Error during purchase:', error);

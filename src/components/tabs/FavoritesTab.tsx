@@ -7,6 +7,10 @@ interface FavoriteItem {
   id: string;
   content: string;
   author: string;
+  likes: number;
+  liked: boolean;
+  favorite: boolean;
+  createdAt: string;
 }
 
 interface FavoritesTabProps {
@@ -14,25 +18,45 @@ interface FavoritesTabProps {
   currentRole: string | null;
 }
 
+const storage = (() => {
+  try {
+    localStorage.setItem('test', 'test');
+    localStorage.removeItem('test');
+    return localStorage;
+  } catch (e) {
+    return {
+      getItem: (key: string) => (window as any)[key] || '[]',
+      setItem: (key: string, value: string) => (window as any)[key] = value
+    };
+  }
+})();
+
 const FavoritesTab: React.FC<FavoritesTabProps> = ({ currentUser, currentRole }) => {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
   useEffect(() => {
     loadFavorites();
+
+    // Listen for favorites updates
+    const handleFavoritesUpdate = () => {
+      loadFavorites();
+    };
+
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
+
+    return () => {
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
+    };
   }, []);
 
   const loadFavorites = () => {
-    const favoritesData = JSON.parse(localStorage.getItem('gaminghub_favorites') || '[]');
+    console.log('Calling GET FAVORITES endpoint');
+    const favoritesData = JSON.parse(storage.getItem('gaminghub_favorites') || '[]');
+    console.log('Favorites list retrieved successfully, status: 200, count:', favoritesData.length, 'favorites:', favoritesData);
     setFavorites(favoritesData);
   };
 
-  if (currentRole !== 'UsuarioBasico') {
-    return (
-      <Alert variant="warning">
-        Esta sección solo está disponible para usuarios básicos.
-      </Alert>
-    );
-  }
+
 
   return (
     <div>
@@ -50,7 +74,14 @@ const FavoritesTab: React.FC<FavoritesTabProps> = ({ currentUser, currentRole })
               <Card.Body>
                 <h5>{item.content}</h5>
                 <p className="text-muted">Por: {item.author}</p>
-                <small className="text-muted">Tipo: {item.type}</small>
+                <div className="d-flex justify-content-between align-items-center">
+                  <small className="text-muted">Tipo: {item.type}</small>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="text-muted">Likes: {item.likes}</span>
+                    {item.liked && <span className="text-success">❤️</span>}
+                    {item.favorite && <span className="text-warning">⭐</span>}
+                  </div>
+                </div>
               </Card.Body>
             </Card>
           ))}

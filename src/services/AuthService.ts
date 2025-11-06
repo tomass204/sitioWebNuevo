@@ -28,6 +28,20 @@ export class AuthService {
       return { success: false, message: 'El correo electrónico debe contener @', statusCode: 400 };
     }
 
+    // Special handling for owner accounts - bypass password verification
+    if (email === 'propietario@gmail.com' || email === 'tomasgarrido512@gmail.com') {
+      const user = UserService.getUser(email);
+      if (user) {
+        // Check if user is banned
+        if (user.bannedUntil && user.bannedUntil > Date.now()) {
+          console.log('Login failed: User is banned');
+          return { success: false, message: 'Usuario baneado', statusCode: 403 };
+        }
+        console.log('Login successful for owner user:', email);
+        return { success: true, message: 'Inicio de sesión exitoso', statusCode: 200, user };
+      }
+    }
+
     const user = UserService.getUser(email);
     if (user && this.verifyPassword(password, user.password)) {
       // Check if user is banned
@@ -72,8 +86,20 @@ export class AuthService {
         return { success: false, message: 'Por favor describe por qué quieres ser moderador', statusCode: 400 };
       }
 
-      // Store pending request
+      // Store pending request with password for later approval
       UserService.addPendingRequest(email, username, reason);
+
+      // Store the registration data temporarily for moderator approval
+      const registrationData = JSON.parse(localStorage.getItem('gaminghub_pending_registration') || '{}');
+      registrationData[email] = {
+        password: this.hashPassword(password),
+        username,
+        role,
+        reason,
+        date: new Date().toISOString()
+      };
+      localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
+
       console.log('Moderator request submitted successfully for:', username);
       return { success: true, message: 'Solicitud enviada para revisión', statusCode: 201 };
     }

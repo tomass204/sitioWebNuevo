@@ -5,6 +5,7 @@ import NewsTab from './tabs/NewsTab';
 import DebatesTab from './tabs/DebatesTab';
 import GamesTab from './tabs/GamesTab';
 import CartTab from './tabs/CartTab';
+import PendingPurchasesTab from './tabs/PendingPurchasesTab';
 import FavoritesTab from './tabs/FavoritesTab';
 import ProfileTab from './tabs/ProfileTab';
 import ModerationTab from './tabs/ModerationTab';
@@ -16,7 +17,7 @@ interface MainContentProps {
   onLogout: () => void;
 }
 
-type TabType = 'profile' | 'news' | 'debates' | 'games' | 'cart' | 'favorites' | 'moderation' | 'about';
+type TabType = 'profile' | 'news' | 'debates' | 'games' | 'cart' | 'pendingPurchases' | 'favorites' | 'moderation' | 'about';
 
 const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -46,6 +47,8 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
         return <GamesTab currentUser={currentUser} currentRole={currentRole} />;
       case 'cart':
         return <CartTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'pendingPurchases':
+        return <PendingPurchasesTab currentUser={currentUser} currentRole={currentRole} />;
       case 'favorites':
         return <FavoritesTab currentUser={currentUser} currentRole={currentRole} />;
       case 'moderation':
@@ -93,11 +96,17 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
               >
                 <i className="fas fa-gamepad me-1"></i> Juegos
               </Nav.Link>
-              <Nav.Link 
+              <Nav.Link
                 onClick={() => handleTabChange('cart')}
                 className={activeTab === 'cart' ? 'active' : ''}
               >
                 <i className="fas fa-shopping-cart me-1"></i> Carrito
+              </Nav.Link>
+              <Nav.Link
+                onClick={() => handleTabChange('pendingPurchases')}
+                className={activeTab === 'pendingPurchases' ? 'active' : ''}
+              >
+                <i className="fas fa-shopping-bag me-1"></i> Compras
               </Nav.Link>
               {currentRole === 'UsuarioBasico' && (
                 <Nav.Link 
@@ -107,8 +116,8 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
                   <i className="fas fa-heart me-1"></i> Favoritos
                 </Nav.Link>
               )}
-              {currentRole === 'Propietario' && (
-                <Nav.Link 
+              {(currentRole === 'Propietario' || currentRole === 'Moderador') && (
+                <Nav.Link
                   onClick={() => handleTabChange('moderation')}
                   className={activeTab === 'moderation' ? 'active' : ''}
                 >

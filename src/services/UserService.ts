@@ -97,10 +97,11 @@ export class UserService {
     const requests = this.getPendingRequestsRaw();
     const index = requests.findIndex(req => req.email === email && req.username === username);
     if (index !== -1) {
+      const request = requests[index];
       requests.splice(index, 1);
       this.savePendingRequests(requests);
-      
-      // Create or update user to Moderator
+
+      // Create or update user to Moderator with the password they provided during registration
       const users = this.getUsers();
       if (users[email]) {
         users[email].role = 'Moderador';
@@ -109,10 +110,14 @@ export class UserService {
         users[email].bannedUntil = 0;
         users[email].banCount = 0;
       } else {
+        // Get the password from the pending registration data stored in localStorage
+        const registrationData = JSON.parse(localStorage.getItem('gaminghub_pending_registration') || '{}');
+        const userPassword = registrationData[email]?.password || 'moderator123'; // fallback if not found
+
         users[email] = {
           id: this.generateNextId(),
           email,
-          password: 'moderator123',
+          password: userPassword,
           username,
           role: 'Moderador',
           warnings: [],
@@ -120,6 +125,10 @@ export class UserService {
           bannedUntil: 0,
           banCount: 0
         };
+
+        // Remove the pending registration data after approval
+        delete registrationData[email];
+        localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
       }
       this.saveUsers(users);
     }
@@ -137,18 +146,22 @@ export class UserService {
   static addWarning(email: string, comment: string): void {
     const users = this.getUsers();
     if (users[email]) {
+      // Clean expired warnings first
+      users[email].warnings = users[email].warnings.filter((w: any) => Date.now() - w.timestamp < 24 * 60 * 60 * 1000); // 24 hours
+
       const warning = {
         comment,
         timestamp: Date.now(),
-        read: false
+        read: false,
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // Expires in 24 hours
       };
       users[email].warnings.push(warning);
-      
+
       const warningCount = users[email].warnings.length;
       if (warningCount >= 3) {
         users[email].banCount = (users[email].banCount || 0) + 1;
         users[email].warnings = [];
-        
+
         if (users[email].banCount === 1) {
           users[email].bannedUntil = Date.now() + 10 * 60 * 1000; // 10 minutes
         } else if (users[email].banCount === 2) {
@@ -157,9 +170,20 @@ export class UserService {
           users[email].bannedUntil = Date.now() + 24 * 60 * 60 * 1000; // 1 day
         }
       }
-      
+
       this.saveUsers(users);
     }
+  }
+
+  static getRemainingWarnings(email: string): number {
+    const users = this.getUsers();
+    if (users[email]) {
+      // Clean expired warnings
+      users[email].warnings = users[email].warnings.filter((w: any) => Date.now() - w.timestamp < 24 * 60 * 60 * 1000);
+      this.saveUsers(users);
+      return 3 - users[email].warnings.length;
+    }
+    return 3;
   }
 
   static getRoleProfilePic(role: string): string {
@@ -217,8 +241,19 @@ export class UserService {
         'tomasgarrido512@gmail.com': {
           id: '4',
           email: 'tomasgarrido512@gmail.com',
-          password: '12345',
+          password: '123456',
           username: 'Propietario',
+          role: 'Propietario',
+          warnings: [],
+          profilePic: 'img/Propietario.png',
+          bannedUntil: 0,
+          banCount: 0
+        },
+        'propietario@gmail.com': {
+          id: '5',
+          email: 'propietario@gmail.com',
+          password: '123456',
+          username: 'Propietario2',
           role: 'Propietario',
           warnings: [],
           profilePic: 'img/Propietario.png',

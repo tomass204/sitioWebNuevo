@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Form, Row, Col, Image, Alert } from 'react-bootstrap';
 import { User } from '../../services/AuthService';
 import { NewsService } from '../../services/NewsService';
+import { UserService } from '../../services/UserService';
 
 interface NewsItem {
   id: string;
@@ -19,6 +20,7 @@ interface Comment {
   author: string;
   likes: number;
   liked: boolean;
+  favorite: boolean;
   createdAt: string;
 }
 
@@ -94,6 +96,15 @@ const NewsTab: React.FC<NewsTabProps> = ({ currentUser, currentRole }) => {
       loadNews();
     } catch (error) {
       console.error('Error liking comment:', error);
+    }
+  };
+
+  const favoriteComment = async (newsId: string, commentId: string) => {
+    try {
+      await NewsService.favoriteComment(newsId, commentId);
+      loadNews();
+    } catch (error) {
+      console.error('Error favoriting comment:', error);
     }
   };
 
@@ -205,27 +216,41 @@ const NewsTab: React.FC<NewsTabProps> = ({ currentUser, currentRole }) => {
                 )}
 
                 <div className="comments">
-                  {item.comments.map((comment) => (
-                    <div key={comment.id} className="comment">
-                      <div className="comment-author">
-                        <Image
-                          src="/img/UsuarioBasico.png"
-                          alt="Profile"
-                          className="comment-profile-pic"
-                        />
-                        <span>{comment.author}</span>
+                  {item.comments.map((comment) => {
+                    const commenterUser = UserService.getUser(comment.author);
+                    const profilePic = commenterUser?.profilePic || '/img/UsuarioBasico.png';
+                    return (
+                      <div key={comment.id} className="comment">
+                        <div className="comment-author">
+                          <Image
+                            src={profilePic}
+                            alt="Profile"
+                            className="comment-profile-pic me-2"
+                            style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                          />
+                          <span>{comment.author}</span>
+                        </div>
+                        <p>{comment.text}</p>
+                        <div className="d-flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => likeComment(item.id, comment.id)}
+                            className={comment.liked ? 'liked' : ''}
+                          >
+                            Me gusta ({comment.likes})
+                          </Button>
+                          <Button
+                            variant={comment.favorite ? 'warning' : 'secondary'}
+                            size="sm"
+                            onClick={() => favoriteComment(item.id, comment.id)}
+                          >
+                            {comment.favorite ? '⭐ Favorito' : '☆ Favorito'}
+                          </Button>
+                        </div>
                       </div>
-                      <p>{comment.text}</p>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => likeComment(item.id, comment.id)}
-                        className={comment.liked ? 'liked' : ''}
-                      >
-                        Me gusta ({comment.likes})
-                      </Button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {currentRole !== 'Propietario' && (

@@ -18,8 +18,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onToggleForm }) => {
     }
     setError('');
 
-    if (!email || !password) {
-      setError('Por favor completa todos los campos');
+    if (!email) {
+      setError('Por favor ingresa tu correo electrónico');
+      return;
+    }
+
+    // Special handling for owner account - no password required
+    if (email === 'propietario@gmail.com') {
+      // Auto-accept owner login with correct password
+      onLogin(email, '123456');
+      return;
+    }
+
+    if (!password) {
+      setError('Por favor ingresa tu contraseña');
       return;
     }
 
