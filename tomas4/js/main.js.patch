@@ -1,0 +1,31 @@
+const mainContent = document.getElementById('main-content');
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const loginError = document.getElementById('login-error');
+const userRoleSpan = document.getElementById('user-role');
+
+const newsList = document.getElementById('news-list');
+const newsFormContainer = document.getElementById('news-form-container');
+const debateList = document.getElementById('debate-list');
+const debateFormContainer = document.getElementById('debate-form-container');
+
+let currentRole = null;
+let currentUser = null;
+=======
+const loginContainer = document.getElementById('login-container');
+const mainContent = document.getElementById('main-content');
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const loginError = document.getElementById('login-error');
+const userRoleSpan = document.getElementById('user-role');
+
+const newsList = document.getElementById('news-list');
+const newsFormContainer = document.getElementById('news-form-container');
+const debateList = document.getElementById('debate-list');
+const debateFormContainer = document.getElementById('debate-form-container');
+
+const tabs = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
+
+let currentRole = null;
+let currentUser = null;

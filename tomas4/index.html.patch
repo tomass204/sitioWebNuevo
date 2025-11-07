@@ -1,0 +1,11 @@
+<h1>GamingHub - Clash Royale, Roblox, Fortnite</h1>
+            <p>Debates, noticias y comunidad de juegos populares</p>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </header>
+=======
+        <header>
+            <img src="img/gaminghub_logo.png" alt="Gaming Hub Logo" id="logo" />
+            <h1>GamingHub - Clash Royale, Roblox, Fortnite</h1>
+            <p>Debates, noticias y comunidad de juegos populares</p>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </header>

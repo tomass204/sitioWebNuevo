@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GamingHub - Perfil</title>
+    <link rel="stylesheet" href="CSS/styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+</head>
+<body>
+    <!-- Video de fondo -->
+    <video autoplay muted loop id="bgVideo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.7; filter: brightness(0.6) contrast(1.1);">
+        <source src="img/Video.mp4" type="video/mp4">
+        Tu navegador no soporta el elemento de video.
+    </video>
+
+    <div id="login-container">
+        <div class="auth-form">
+            <div id="login-form">
+                <h2>Iniciar Sesión en GamingHub</h2>
+                <label for="login-email">Correo electrónico:</label>
+                <input type="email" id="login-email" placeholder="Ingresa tu correo electrónico" />
+                <label for="login-password">Contraseña:</label>
+                <input type="password" id="login-password" placeholder="Ingresa tu contraseña" />
+                <input type="checkbox" onclick="document.getElementById('login-password').type = this.checked ? 'text' : 'password'"> Mostrar contraseña
+                <button id="login-btn">Iniciar Sesión</button>
+                <p id="login-error" style="color: red; display: none;">Credenciales incorrectas</p>
+                <p><a href="#" id="show-register">¿No tienes cuenta? Regístrate</a></p>
+            </div>
+            <div id="register-form" style="display: none;">
+                <h2>Crear Cuenta en GamingHub</h2>
+                <label for="register-username">Nombre de usuario:</label>
+                <input type="text" id="register-username" placeholder="Ingresa tu nombre de usuario" />
+                <label for="register-email">Correo electrónico:</label>
+                <input type="email" id="register-email" placeholder="Ingresa tu correo electrónico" />
+                <label for="register-password">Contraseña:</label>
+                <input type="password" id="register-password" placeholder="Ingresa tu contraseña" />
+                <label for="register-role">Rol:</label>
+                <select id="register-role">
+                    <option value="UsuarioBasico">Usuario Básico</option>
+                    <option value="Influencer">Influencer</option>
+                    <option value="Moderador">Moderador</option>
+                </select>
+                <div id="moderator-request" style="display: none;">
+                    <h4>Reglas para Moderadores:</h4>
+                    <ul>
+                        <li>No abusar de eliminar comentarios o publicaciones.</li>
+                        <li>Usar advertencias de manera justa y proporcional.</li>
+                        <li>Promover un ambiente positivo en la comunidad.</li>
+                    </ul>
+                    <label for="moderator-reason">Describe por qué quieres ser moderador:</label>
+                    <textarea id="moderator-reason" placeholder="Escribe tu motivo aquí..." required></textarea>
+                </div>
+                <button id="register-btn">Crear Cuenta</button>
+                <p id="register-error" style="color: red; display: none;">Error al crear cuenta</p>
+                <p><a href="#" id="show-login">¿Ya tienes cuenta? Inicia Sesión</a></p>
+            </div>
+        </div>
+        <video id="login-video" autoplay muted loop style="width: 100%; max-width: 400px; margin: 20px auto; display: none; opacity: 0; transition: opacity 1s ease-in-out;">
+            <source src="img/Gato.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+        </video>
+    </div>
+
+    <div id="ban-screen" style="display: none;">
+        <img src="img/Troll.png" alt="Banned" id="ban-image" />
+        <p>¡Estás baneado!</p>
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <header>
+            <img src="img/gaminghub_logo.png" alt="Gaming Hub Logo" id="logo" />
+            <div>
+                <h1>GamingHub - Comunidad de Juegos</h1>
+                <p>Debates, noticias y comunidad de juegos populares</p>
+            </div>
+            <div class="user-profile">
+                <img id="profile-pic" src="img/default_profile.png" alt="Foto de Perfil" />
+                <p>Bienvenido, <span id="user-role"></span></p>
+            </div>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </header>
+
+        <nav id="tabs">
+            <button class="tab-button" data-tab="profile"><i class="fas fa-user"></i> Perfil</button>
+            <button class="tab-button" data-tab="news"><i class="fas fa-newspaper"></i> Noticias</button>
+            <button class="tab-button" data-tab="debates"><i class="fas fa-comments"></i> Debates</button>
+            <button class="tab-button" data-tab="games"><i class="fas fa-gamepad"></i> Juegos</button>
+            <button class="tab-button" data-tab="cart"><i class="fas fa-shopping-cart"></i> Carrito</button>
+            <button class="tab-button active" data-tab="favorites" id="favorites-tab"><i class="fas fa-heart"></i> Favoritos</button>
+            <button class="tab-button" data-tab="moderation" id="moderation-tab" style="display: none;"><i class="fas fa-gavel"></i> Moderación</button>
+            <button class="tab-button" data-tab="about"><i class="fas fa-info-circle"></i> Acerca de</button>
+        </nav>
+
+        <section id="profile" class="section tab-content">
+            <h2>Perfil de Usuario</h2>
+            <p>Administra tu perfil y configuración.</p>
+            <div class="profile-pic-container"></div>
+
+            <div class="profile-update-section">
+                <h3>Actualizar Información</h3>
+                <form id="profile-update-form">
+                    <label for="profile-username">Nombre de usuario:</label>
+                    <input type="text" id="profile-username" placeholder="Ingresa tu nombre de usuario" />
+                    <label for="profile-email">Correo electrónico:</label>
+                    <input type="email" id="profile-email" placeholder="Ingresa tu correo electrónico" />
+                    <label for="profile-password">Nueva contraseña:</label>
+                    <input type="password" id="profile-password" placeholder="Ingresa nueva contraseña (opcional)" />
+                    <button type="submit" id="update-profile-btn">Actualizar Perfil</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="news" class="section tab-content">
+            <h2>Noticias</h2>
+            <p>Lee las últimas noticias sobre juegos.</p>
+            <div id="news-list"></div>
+            <div id="news-form-container" style="display:block;">
+                <h3>Publicar noticia</h3>
+                <form id="news-form">
+                    <label for="news-title">Título:</label>
+                    <input type="text" id="news-title" name="title" placeholder="Título de la noticia" required />
+                    <label for="news-content">Contenido:</label>
+                    <textarea id="news-content" name="content" placeholder="Contenido de la noticia" required></textarea>
+                    <label for="news-image">Imagen:</label>
+                    <input type="file" id="news-image" name="image" accept="image/*" />
+                    <button type="submit">Publicar</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="debates" class="section tab-content">
+            <h2>Debates</h2>
+            <p>Participa en debates sobre tus juegos favoritos.</p>
+            <div id="debate-list"></div>
+            <div id="debate-form-container" style="display:none;">
+                <h3>Crear debate</h3>
+                <form id="debate-form">
+                    <label for="debate-title">Título:</label>
+                    <input type="text" id="debate-title" name="title" placeholder="Título del debate" required />
+                    <label for="debate-content">Contenido:</label>
+                    <textarea id="debate-content" name="content" placeholder="Contenido del debate" required></textarea>
+                    <label for="debate-image">Imagen:</label>
+                    <input type="file" id="debate-image" name="image" accept="image/*" />
+                    <button type="submit">Crear debate</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="games" class="section tab-content">
+            <h2>Juegos Populares</h2>
+            <div class="game-gallery" id="game-gallery"></div>
+            <div id="game-form-container" style="display:none;">
+                <h3>Publicar juego</h3>
+                <form id="game-form">
+                    <label for="game-title">Nombre del juego:</label>
+                    <input type="text" id="game-title" name="title" placeholder="Nombre del juego" required />
+                    <label for="game-category">Categoría:</label>
+                    <select id="game-category" name="category">
+                        <option value="action">Acción</option>
+                        <option value="strategy">Estrategia</option>
+                        <option value="adventure">Aventura</option>
+                        <option value="simulation">Simulación</option>
+                        <option value="sports">Deportes</option>
+                        <option value="rpg">RPG</option>
+                    </select>
+                    <label for="game-description">Descripción:</label>
+                    <textarea id="game-description" name="description" placeholder="Descripción del juego" required></textarea>
+                    <label for="game-image">Imagen:</label>
+                    <input type="file" id="game-image" name="image" accept="image/*" />
+                    <button type="submit">Publicar Juego</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="cart" class="section tab-content">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-list"></div>
+            <div id="cart-total"></div>
+            <button id="checkout-btn">Proceder al Pago</button>
+        </section>
+
+        <section id="favorites" class="section tab-content active">
+            <h2>Favoritos</h2>
+            <p>Tus comentarios guardados.</p>
+            <div id="favorites-list"></div>
+        </section>
+        <section id="moderation" class="section tab-content">
+            <h2>Moderación</h2>
+            <p>Gestiona solicitudes de moderador y herramientas de moderación.</p>
+            <div id="moderator-section">
+                <h3>Herramientas de Moderador</h3>
+                <div class="moderator-tools">
+                    <button id="view-reports-btn">Ver Reportes</button>
+                    <button id="manage-users-btn">Gestionar Usuarios</button>
+                    <button id="moderator-settings-btn">Configuración de Moderador</button>
+                </div>
+                <h3>Solicitudes Pendientes de Moderador</h3>
+                <div id="pending-list"></div>
+            </div>
+        </section>
+        <section id="about" class="section tab-content">
+            <h2>Acerca de Nosotros</h2>
+            <img src="tomas4/img/Nosotros.png" alt="Nosotros" style="max-width: 50%; height: auto; display: block; margin: 0 auto;" />
+            <p>Somos un equipo nuevo creando esta página web para la comunidad de gamers.</p>
+            <p>Síguenos en nuestras redes sociales:</p>
+            <ul>
+                <li><a href="https://www.instagram.com/gaminghub_oficial" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+                <li><a href="https://www.facebook.com/T4MS8282" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
+            </ul>
+            <p>Contacto: <a href="mailto:gaminghuboficial@gmail.com">gaminghuboficial@gmail.com</a></p>
+            <p>Si encuentras algún error, por favor comunícalo a nuestro equipo.</p>
+        </section>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="module" src="/main.tsx"></script>
+
+    <script src="js/api/comments.js"></script>
+    <script src="webclient/auth.js"></script>
+    <script src="webclient/comments.js"></script>
+    <script src="webclient/news.js"></script>
+    <script src="webclient/debates.js"></script>
+    <script src="webclient/reactions.js"></script>
+    <script src="webclient/favorites.js"></script>
+    <script src="webclient/moderation.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+
+    <footer>
+        <p> © 2025 GamingHub. Todos los derechos reservados.</p>
+    </footer>
+
+    <section id="reports" class="section tab-content" style="display:none; opacity:0; transition: opacity 0.5s ease-in-out;">
+        <h2>🚨 Reporte de Conductas Inadecuadas</h2>
+        <p>Se han detectado las siguientes alertas en la comunidad:</p>
+
+        <div class="alert-card danger">
+            <h3>Lenguaje ofensivo</h3>
+            <p>3 usuarios han sido reportados por uso de palabras inapropiadas.</p>
+        </div>
+
+        <div class="alert-card warning">
+            <h3>Spam o contenido repetitivo</h3>
+            <p>5 casos detectados en las últimas 24 horas.</p>
+        </div>
+
+        <div class="alert-card info">
+            <h3>Actividad sospechosa</h3>
+            <p>2 cuentas fueron marcadas por comportamiento irregular.</p>
+        </div>
+    </section>
+</body>
+</html>
