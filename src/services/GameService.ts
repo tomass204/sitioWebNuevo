@@ -63,11 +63,7 @@ export class GameService {
               title: 'Clash Royale',
               category: 'strategy',
               description: 'Juego de estrategia en tiempo real.',
-<<<<<<< HEAD
               image: '/img/ClashRoyale.png',
-=======
-              image: '/img/C.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -78,11 +74,7 @@ export class GameService {
               title: 'Fortnite',
               category: 'action',
               description: 'Battle royale con construcción.',
-<<<<<<< HEAD
               image: '/img/Fornite.png',
-=======
-              image: '/img/cf.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -93,11 +85,7 @@ export class GameService {
               title: 'Roblox',
               category: 'adventure',
               description: 'Plataforma de juegos creados por usuarios.',
-<<<<<<< HEAD
               image: '/img/Roblox.png',
-=======
-              image: '/img/R.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -119,11 +107,7 @@ export class GameService {
               title: 'Brawl Stars',
               category: 'action',
               description: 'Juego de acción multijugador.',
-<<<<<<< HEAD
               image: '/img/BrawlStars.png',
-=======
-              image: '/img/B.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -134,11 +118,7 @@ export class GameService {
               title: 'Minecraft',
               category: 'adventure',
               description: 'Mundo de bloques y aventuras.',
-<<<<<<< HEAD
               image: '/img/Minecraft.png',
-=======
-              image: '/img/M.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 29.99,
               createdAt: new Date().toISOString(),
@@ -487,11 +467,7 @@ export class GameService {
               title: 'Clash Royale',
               category: 'strategy',
               description: 'Juego de estrategia en tiempo real.',
-<<<<<<< HEAD
               image: '/img/ClashRoyale.png',
-=======
-              image: '/img/C.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -502,11 +478,7 @@ export class GameService {
               title: 'Fortnite',
               category: 'action',
               description: 'Battle royale con construcción.',
-<<<<<<< HEAD
               image: '/img/Fornite.png',
-=======
-              image: '/img/cf.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -517,11 +489,7 @@ export class GameService {
               title: 'Roblox',
               category: 'adventure',
               description: 'Plataforma de juegos creados por usuarios.',
-<<<<<<< HEAD
               image: '/img/Roblox.png',
-=======
-              image: '/img/R.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -543,11 +511,7 @@ export class GameService {
               title: 'Brawl Stars',
               category: 'action',
               description: 'Juego de acción multijugador.',
-<<<<<<< HEAD
               image: '/img/BrawlStars.png',
-=======
-              image: '/img/BrawlStars3.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 0,
               createdAt: new Date().toISOString(),
@@ -558,11 +522,7 @@ export class GameService {
               title: 'Minecraft',
               category: 'adventure',
               description: 'Mundo de bloques y aventuras.',
-<<<<<<< HEAD
               image: '/img/Minecraft.png',
-=======
-              image: '/img/Minecraft3.png',
->>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
               author: 'influencer@gaminghub.com',
               price: 29.99,
               createdAt: new Date().toISOString(),
