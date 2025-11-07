@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Form, Row, Col, Image } from 'react-bootstrap';
+<<<<<<< HEAD
 import { FaReact } from 'react-icons/fa';
+=======
+>>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
 import { User } from '../../services/AuthService';
 import { GameService } from '../../services/GameService';
 import { UserService } from '../../services/UserService';
@@ -304,12 +307,21 @@ const GamesTab: React.FC<GamesTabProps> = ({ currentUser, currentRole }) => {
       )}
 
       <Row>
+<<<<<<< HEAD
         {(filteredGames.length > 0 ? filteredGames : games).map((game, index) => (
           <Col md={6} lg={4} key={`${game.id}-${index}`} className="mb-4">
             <Card className="game-item h-100">
               <Image src={game.image} alt={game.title} className="card-img-top" style={{ height: '200px', objectFit: 'cover' }} onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/img/default_game.jpg'; }} />
               <Card.Body>
                 <Card.Title>{game.title} <FaReact style={{ color: '#61dafb', marginLeft: '5px' }} /></Card.Title>
+=======
+        {(filteredGames.length > 0 ? filteredGames : games).map((game) => (
+          <Col md={6} lg={4} key={game.id} className="mb-4">
+            <Card className="game-item h-100">
+              <Image src={game.image} alt={game.title} className="card-img-top" style={{ height: '200px', objectFit: 'cover' }} onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/img/default_game.jpg'; }} />
+              <Card.Body>
+                <Card.Title>{game.title}</Card.Title>
+>>>>>>> 86d05a7c21fdb09deb2a1fb4a1e1d52d4be92c3f
                 <Card.Text>{game.description}</Card.Text>
 
                 <div className="d-flex align-items-center mb-3">
