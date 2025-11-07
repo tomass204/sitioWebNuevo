@@ -53,8 +53,8 @@
     "karma-coverage": "^2.2.0",
     "karma-jasmine": "^5.1.0",
     "karma-webpack": "^5.0.0",
-    "live-server": "^1.2.1",
-    "vite": "^4.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.1",
     "webpack": "^5.88.0"
   }
 }
