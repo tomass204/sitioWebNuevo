@@ -124,33 +124,6 @@ export class DebateService {
       debateItem.comments.push(newComment);
       this.saveDebates(debates);
 
-      // Add to global comments for moderation
-      const globalComments = JSON.parse(localStorage.getItem('gaminghub_comments') || '[]');
-      globalComments.push({
-        id: newComment.id,
-        userEmail: commentData.author,
-        username: commentData.author.split('@')[0], // Extract username from email
-        content: commentData.text,
-        timestamp: newComment.createdAt,
-        type: 'debate'
-      });
-      localStorage.setItem('gaminghub_comments', JSON.stringify(globalComments));
-
-      // Also add to debate-specific comments for moderation
-      const debateComments = JSON.parse(localStorage.getItem('gaminghub_debate_comments') || '[]');
-      debateComments.push({
-        id: newComment.id,
-        userEmail: commentData.author,
-        username: commentData.author.split('@')[0], // Extract username from email
-        content: commentData.text,
-        timestamp: newComment.createdAt,
-        type: 'debate'
-      });
-      localStorage.setItem('gaminghub_debate_comments', JSON.stringify(debateComments));
-
-      // Dispatch event to update ModerationTab
-      window.dispatchEvent(new Event('commentsUpdated'));
-
       console.log('Comment added successfully to debate:', debateItem.title);
     } else {
       console.log('Failed to add comment: Debate not found');

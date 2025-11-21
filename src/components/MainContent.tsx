@@ -224,7 +224,7 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
                   <i className="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
                 </NavDropdown.Item>
               </NavDropdown>
-              <Nav.Link onClick={onLogout}>Cerrar Sesión</Nav.Link>
+              <Nav.Link onClick={onLogout} className="d-none">Cerrar Sesión</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

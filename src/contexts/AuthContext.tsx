@@ -69,19 +69,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const { AuthServiceBackend } = await import('../services/AuthServiceBackend');
           // For now, just check if token exists (since verifyToken doesn't exist)
           if (savedToken && savedToken.length > 0) {
-            const user = UserService.getUser(savedUserEmail);
-            if (user && user.role === savedRole) {
-              // Check if user is banned
-              if (user.bannedUntil && user.bannedUntil > Date.now()) {
-                setIsBanned(true);
-                const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
-                setBanTimeRemaining(remaining);
-                return;
-              }
+        const user = UserService.getUser(savedUserEmail);
+        if (user && user.role === savedRole) {
+          // Check if user is banned
+          if (user.bannedUntil && user.bannedUntil > Date.now()) {
+            setIsBanned(true);
+            const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
+            setBanTimeRemaining(remaining);
+            return;
+          }
 
-              setCurrentUser(user);
-              setCurrentRole(user.role);
-              setIsLoggedIn(true);
+          // Asegurar que tenga profilePic basado en el rol
+          if (!user.profilePic) {
+            user.profilePic = UserService.getRoleProfilePic(user.role);
+          }
+
+          setCurrentUser(user);
+          setCurrentRole(user.role);
+          setIsLoggedIn(true);
 
               // Restore active tab
               const savedActiveTab = localStorage.getItem('activeTab');
@@ -107,6 +112,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
             setBanTimeRemaining(remaining);
             return;
+          }
+
+          // Asegurar que tenga profilePic basado en el rol
+          if (!user.profilePic) {
+            user.profilePic = UserService.getRoleProfilePic(user.role);
           }
 
           setCurrentUser(user);
@@ -172,6 +182,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const localResult = await AuthService.login(email, password);
         if (localResult.success && localResult.user) {
           const user = localResult.user;
+          // Asegurar que tenga profilePic basado en el rol
+          if (!user.profilePic) {
+            user.profilePic = UserService.getRoleProfilePic(user.role);
+          }
           setCurrentUser(user);
           setCurrentRole(user.role);
           setIsLoggedIn(true);

@@ -48,6 +48,7 @@ export class UserService {
   static createUser(email: string, password: string, username: string, role: string): string {
     const users = this.getUsers();
     const id = this.generateNextId();
+    const profilePic = this.getRoleProfilePic(role);
     users[email] = {
       id,
       email,
@@ -55,7 +56,7 @@ export class UserService {
       username,
       role,
       warnings: [],
-      profilePic: this.getRoleProfilePic(role),
+      profilePic,
       bannedUntil: 0,
       banCount: 0
     };

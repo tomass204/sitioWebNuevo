@@ -127,33 +127,6 @@ export class NewsService {
       newsItem.comments.push(newComment);
       this.saveNews(news);
 
-      // Add to global comments for moderation
-      const globalComments = JSON.parse(localStorage.getItem('gaminghub_comments') || '[]');
-      globalComments.push({
-        id: newComment.id,
-        userEmail: commentData.author,
-        username: commentData.author.split('@')[0], // Extract username from email
-        content: commentData.text,
-        timestamp: newComment.createdAt,
-        type: 'news'
-      });
-      localStorage.setItem('gaminghub_comments', JSON.stringify(globalComments));
-
-      // Also add to news-specific comments for moderation
-      const newsComments = JSON.parse(localStorage.getItem('gaminghub_news_comments') || '[]');
-      newsComments.push({
-        id: newComment.id,
-        userEmail: commentData.author,
-        username: commentData.author.split('@')[0], // Extract username from email
-        content: commentData.text,
-        timestamp: newComment.createdAt,
-        type: 'news'
-      });
-      localStorage.setItem('gaminghub_news_comments', JSON.stringify(newsComments));
-
-      // Dispatch event to update ModerationTab
-      window.dispatchEvent(new Event('commentsUpdated'));
-
       console.log('Comment added successfully to news:', newsItem.title);
     } else {
       console.log('Failed to add comment: News not found');
