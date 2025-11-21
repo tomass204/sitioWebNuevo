@@ -1,0 +1,119 @@
+Manual de Usuario
+"GamingHub"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Versión del Documento: 1.0
+Fecha de Creación: 20/11/2024
+ 
+(Borrar esta hoja)
+Evidencia de la documentación:
+Cada imagen añadida a los documentos se debe documentar de la siguiente manera:
+•	Número, Titulo, Imagen y Nota.
+•	Imagen borde 1px, color negro.
+ 
+
+ 
+Introducción
+•	Propósito del documento:
+Este manual de usuario está diseñado para guiar a los usuarios de GamingHub, una plataforma comunitaria para gamers, en el uso efectivo de todas las funciones disponibles. Está destinado a usuarios nuevos y existentes que desean maximizar su experiencia en la plataforma, incluyendo navegación, compra de productos, participación en debates y gestión de perfil.
+
+•	Descripción del sistema: 
+GamingHub es una aplicación web completa para la comunidad de gamers que ofrece: tienda de productos gaming (accesorios, componentes), noticias actualizadas del mundo gaming, foros de debate, sistema de moderación, y funcionalidades específicas según el rol del usuario (Usuario Básico, Influencer, Moderador, Propietario).
+
+•	Cómo usar este manual: 
+Navega por las secciones en orden para usuarios nuevos, o ve directamente a la sección relevante para consultas específicas. Cada sección incluye capturas de pantalla con anotaciones para facilitar la comprensión visual.
+ 
+Requisitos del Sistema
+•	Hardware necesario: 
+- Computadora o dispositivo móvil con conexión a internet
+- Mínimo: Procesador de 1 GHz, 2 GB RAM, 500 MB espacio en disco
+- Recomendado: Procesador de 2 GHz o superior, 4 GB RAM o más
+
+•	Software necesario: 
+- Navegador web moderno (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- Sistema operativo: Windows 10+, macOS 10.15+, Linux Ubuntu 18.04+, Android 8+, iOS 12+
+- No se requiere instalación de software adicional
+Instalación y Configuración
+•	Instrucciones de instalación paso a paso: 
+1. Abrir el navegador web
+   (Pantallazo: Ventana del navegador con barra de direcciones)
+2. Ingresar la URL: http://localhost:5173 (para desarrollo) o la URL de producción
+   (Pantallazo: Página de inicio de GamingHub cargando)
+3. Esperar a que la página se cargue completamente
+   (Pantallazo: Página principal con logo y menú de navegación)
+4. La aplicación está lista para usar - no requiere instalación adicional
+
+•	Configuración inicial: 
+1. Hacer clic en "Registrarse" si es usuario nuevo
+   (Pantallazo: Formulario de registro con campos de nombre, email, contraseña)
+2. Completar el formulario con información personal
+   (Pantallazo: Campos llenos y botón "Crear cuenta")
+3. Verificar el email si es requerido
+   (Pantallazo: Mensaje de confirmación de registro exitoso)
+4. Iniciar sesión con las credenciales creadas
+   (Pantallazo: Formulario de login con campos email/contraseña)
+
+ 
+Comenzando
+•	Crear una cuenta/Iniciar sesión:
+(Pantallazo 1: Página de inicio con botones "Iniciar Sesión" y "Registrarse")
+(Pantallazo 2: Formulario de registro con campos: Nombre, Email, Contraseña, Confirmar Contraseña)
+(Pantallazo 3: Formulario de inicio de sesión con campos: Email, Contraseña)
+(Pantallazo 4: Mensaje de bienvenida después del login exitoso)
+
+•	Interfaz de usuario inicial: 
+(Pantallazo 5: Pantalla principal después del login, mostrando:
+- Barra de navegación superior con logo, menú de pestañas (Perfil, Noticias, Debates, Juegos, Carrito, etc.)
+- Área central con contenido de la pestaña activa
+- Barra lateral derecha con información del usuario y opciones rápidas
+- Pie de página con información de contacto y redes sociales)
+
+Funcionalidades Principales
+•	Navegación por Pestañas:
+- Perfil: Gestión de información personal y configuración
+- Noticias: Lectura de noticias gaming actualizadas
+- Debates: Participación en foros de discusión
+- Juegos: Exploración y gestión de juegos (para moderadores/propietarios)
+- Tienda/Productos: Compra de accesorios gaming (para usuarios básicos)
+- Carrito: Gestión de productos seleccionados
+- Compras: Historial de pedidos realizados
+- Favoritos: Lista de elementos marcados como favoritos
+- Moderación: Herramientas de administración (para moderadores/propietarios)
+- Acerca de: Información del proyecto y contacto
+
+•	Compra de Productos:
+(Pantallazo 6: Pestaña Productos mostrando lista de artículos con imágenes, precios y categorías)
+(Pantallazo 7: Detalles de un producto específico con botón "Agregar al Carrito")
+(Pantallazo 8: Carrito de compras con lista de productos, cantidades y total)
+(Pantallazo 9: Proceso de checkout con confirmación de pedido)
+
+•	Participación en Debates:
+(Pantallazo 10: Lista de debates activos con temas y autores)
+(Pantallazo 11: Vista de un debate específico con respuestas y opción de comentar)
+
+Solución de Problemas
+•	Problemas Comunes:
+- Error de carga de imágenes: Verificar conexión a internet y recargar la página
+- Error de autenticación: Verificar credenciales y estado del servidor backend
+- Problemas con compras: Asegurarse de tener sesión activa y productos en stock
+
+•	Contacto de Soporte:
+Email: gaminghuboficial@gmail.com
+Redes sociales: Instagram @gaminghub_oficial, Facebook T4MS8282

@@ -1,4 +1,5 @@
 import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import MainContent from '../MainContent';
@@ -13,11 +14,11 @@ const mockUser = {
   banCount: 0
 };
 
-const mockOnLogout = jest.fn();
+const mockOnLogout = vi.fn();
 
 describe('MainContent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render main content with navigation', () => {

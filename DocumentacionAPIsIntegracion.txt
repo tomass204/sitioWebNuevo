@@ -1,0 +1,101 @@
+Documentación APIs e Integración
+"GamingHub"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Título: Documentación de API para Gestión de Productos y Órdenes
+Versión del Documento: 1.0
+Fecha de Creación: 20/11/2024
+ 
+Descripción General
+Este documento proporciona una descripción detallada de los endpoints de la API diseñados para gestionar entidades de Productos y Órdenes dentro de la aplicación GamingHub. Está dirigido a desarrolladores y administradores de sistemas que interactúan con nuestra base de datos de productos y órdenes para la tienda de gaming.
+
+Información General
+•	URL de la API: http://localhost:8082/api/
+•	URL Swagger: http://localhost:8082/swagger-ui.html
+Documentación de Endpoints
+•	Endpoint de Productos v1
+•	GET /v1/productos
+	Descripción: Lista todos los productos disponibles en la tienda.
+	Método: GET
+	Respuesta: 200 (Éxito), 500 (Error del servidor)
+	Autenticación: No requerida (pública)
+	Observaciones: Solo datos básicos de productos (id, nombre, precio, categoría).
+•	GET /v1/productos/categoria/{categoria}
+	Descripción: Lista productos filtrados por categoría.
+	Método: GET
+	Respuesta: 200 (Éxito), 404 (Categoría no encontrada), 500 (Error del servidor)
+	Autenticación: No requerida
+•	POST /v1/productos
+	Descripción: Crea un nuevo producto.
+	Método: POST
+	Datos de Entrada: {nombre: "Mouse Gamer", precio: 50.0, categoria: "Accesorios", descripcion: "Mouse óptico RGB"}
+	Respuesta: 201 (Creado), 400 (Datos inválidos), 401 (No autorizado)
+	Autenticación: Sí (Admin/Moderador)
+•	PUT /v1/productos/{id}
+	Descripción: Actualiza información de un producto.
+	Método: PUT
+	Datos de Entrada: {nombre: "Mouse Gamer Pro", precio: 60.0}
+	Respuesta: 200 (Éxito), 400 (Datos inválidos), 404 (Producto no encontrado), 401 (No autorizado)
+	Autenticación: Sí (Admin/Moderador)
+•	DELETE /v1/productos/{id}
+	Descripción: Elimina un producto.
+	Método: DELETE
+	Respuesta: 204 (Eliminado), 404 (Producto no encontrado), 401 (No autorizado)
+	Autenticación: Sí (Admin/Moderador)
+•	Endpoint de Productos v2
+•	GET /v2/productos
+	Descripción: Lista todos los productos con detalles completos.
+	Método: GET
+	Respuesta: 200 (Éxito), 500 (Error del servidor)
+	Autenticación: No requerida
+•	Endpoint de Órdenes v1
+•	GET /v1/ordenes
+	Descripción: Lista todas las órdenes.
+	Método: GET
+	Respuesta: 200 (Éxito), 401 (No autorizado), 500 (Error del servidor)
+	Autenticación: Sí (según rol)
+	Observaciones: Solo órdenes del usuario autenticado o todas para admin.
+•	POST /v1/ordenes
+	Descripción: Crea una nueva orden de compra.
+	Método: POST
+	Datos de Entrada: {usuarioId: 1, productos: [{productoId: 1, cantidad: 2}], total: 100.0}
+	Respuesta: 201 (Creado), 400 (Datos inválidos), 401 (No autorizado)
+	Autenticación: Sí (Usuario Básico)
+•	GET /v1/ordenes/{id}
+	Descripción: Obtiene detalles de una orden específica.
+	Método: GET
+	Respuesta: 200 (Éxito), 404 (Orden no encontrada), 401 (No autorizado)
+	Autenticación: Sí (propietario de la orden o admin)
+•	PUT /v1/ordenes/{id}/estado
+	Descripción: Actualiza el estado de una orden.
+	Método: PUT
+	Datos de Entrada: {estado: "Enviada"}
+	Respuesta: 200 (Éxito), 400 (Estado inválido), 404 (Orden no encontrada), 401 (No autorizado)
+	Autenticación: Sí (Admin/Moderador)
+Integración con el Frontend
+•	Verificación de Entrega
+•	Descripción de cómo el frontend interactúa con estos endpoints utilizando capturas de pantalla (pantallazos) para verificar las respuestas de la API.
+•	Ejemplo Visual: Incluye imágenes de pantallas del sistema mostrando:
+	La solicitud de lista de productos desde la pestaña "Productos" del frontend.
+	La respuesta visual en la interfaz del usuario cuando se realiza una solicitud exitosa de productos, mostrando la lista de productos con imágenes, nombres, precios y categorías.
+	La solicitud de creación de orden desde el carrito de compras.
+	La respuesta visual cuando se confirma una compra exitosa, mostrando el mensaje de éxito y redirigiendo a "Mis Órdenes".
+	La solicitud de filtrado por categoría y la actualización de la lista de productos en tiempo real.
+	La respuesta de error cuando un endpoint requiere autenticación y el usuario no está logueado, mostrando un modal de login.
+
+(Incluir las capturas de pantalla directamente en el documento con una descripción debajo de cada una explicando lo que muestra, por ejemplo: "Figura 1: Pantalla de la tienda mostrando productos cargados desde GET /v1/productos")

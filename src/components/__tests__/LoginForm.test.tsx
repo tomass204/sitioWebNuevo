@@ -1,14 +1,15 @@
 import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import LoginForm from '../LoginForm';
 
-const mockOnLogin = jest.fn();
-const mockOnToggleForm = jest.fn();
+const mockOnLogin = vi.fn();
+const mockOnToggleForm = vi.fn();
 
 describe('LoginForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render login form correctly', () => {
@@ -27,8 +28,10 @@ describe('LoginForm', () => {
     fireEvent.click(submitButton);
     
     await waitFor(() => {
-      expect(screen.getByText('Por favor completa todos los campos')).toBeInTheDocument();
+      expect(screen.getByText('Por favor ingresa tu correo electrónico')).toBeInTheDocument();
     });
+    
+    expect(mockOnLogin).not.toHaveBeenCalled();
   });
 
   it('should call onLogin when form is submitted with valid data', async () => {
@@ -45,21 +48,30 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(mockOnLogin).toHaveBeenCalledWith('test@example.com', 'password123');
     });
+    
+    expect(mockOnToggleForm).not.toHaveBeenCalled();
   });
 
   it('should toggle password visibility', () => {
     render(<LoginForm onLogin={mockOnLogin} onToggleForm={mockOnToggleForm} />);
     
-    const passwordInput = screen.getByLabelText('Contraseña:');
-    const showPasswordCheckbox = screen.getByLabelText('Mostrar contraseña');
+    const passwordInput = screen.getByLabelText('Contraseña:') as HTMLInputElement;
+    const toggleButton = screen.getByLabelText('Mostrar contraseña');
     
-    expect(passwordInput).toHaveAttribute('type', 'password');
+    // Password should be hidden by default
+    expect(passwordInput.type).toBe('password');
     
-    fireEvent.click(showPasswordCheckbox);
-    expect(passwordInput).toHaveAttribute('type', 'text');
+    // Click to show password
+    fireEvent.click(toggleButton);
+    expect(passwordInput.type).toBe('text');
     
-    fireEvent.click(showPasswordCheckbox);
-    expect(passwordInput).toHaveAttribute('type', 'password');
+    // Click again to hide password
+    fireEvent.click(toggleButton);
+    expect(passwordInput.type).toBe('password');
+    
+    // Verify no side effects
+    expect(mockOnLogin).not.toHaveBeenCalled();
+    expect(mockOnToggleForm).not.toHaveBeenCalled();
   });
 
   it('should call onToggleForm when register link is clicked', () => {
@@ -68,7 +80,8 @@ describe('LoginForm', () => {
     const registerLink = screen.getByText('¿No tienes cuenta? Regístrate');
     fireEvent.click(registerLink);
     
-    expect(mockOnToggleForm).toHaveBeenCalled();
+    expect(mockOnToggleForm).toHaveBeenCalledTimes(1);
+    expect(mockOnLogin).not.toHaveBeenCalled();
   });
 
   it('should display error message when onLogin throws error', async () => {

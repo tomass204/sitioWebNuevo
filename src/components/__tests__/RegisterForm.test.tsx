@@ -1,14 +1,15 @@
 import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import RegisterForm from '../RegisterForm';
 
-const mockOnRegister = jest.fn();
-const mockOnToggleForm = jest.fn();
+const mockOnRegister = vi.fn();
+const mockOnToggleForm = vi.fn();
 
 describe('RegisterForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render register form correctly', () => {
@@ -76,7 +77,7 @@ describe('RegisterForm', () => {
     const passwordInput = screen.getByLabelText('Contraseña:');
     const roleSelect = screen.getByLabelText('Rol:');
     const reasonTextarea = screen.getByLabelText('Describe por qué quieres ser moderador:');
-    const submitButton = screen.getByRole('button', { name: 'Enviar Solicitud' });
+    const submitButton = screen.getByRole('button', { name: 'Crear Cuenta' });
     
     fireEvent.change(usernameInput, { target: { value: 'moderator' } });
     fireEvent.change(emailInput, { target: { value: 'moderator@example.com' } });
