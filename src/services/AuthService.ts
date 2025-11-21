@@ -20,7 +20,7 @@ export class AuthService {
     return this.hashPassword(password) === hashedPassword;
   }
 
-  static login(email: string, password: string): { success: boolean; message: string; statusCode: number; user?: User } {
+  static async login(email: string, password: string): Promise<{ success: boolean; message: string; statusCode: number; user?: User }> {
     console.log('Calling LOGIN endpoint for user:', { email });
 
     if (!email.includes('@')) {

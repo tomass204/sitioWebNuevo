@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Alert, Card } from 'react-bootstrap';
 
 interface RegisterFormProps {
-  onRegister: (email: string, password: string, username: string, role: string, reason?: string) => { success: boolean; message: string; statusCode?: number; userId?: string };
+  onRegister: (email: string, password: string, username: string, role: string, reason?: string) => Promise<{ success: boolean; message: string; statusCode?: number; userId?: string }>;
   onToggleForm: () => void;
 }
 
@@ -15,38 +15,48 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onToggleForm })
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e && typeof e.preventDefault === 'function') {
       e.preventDefault();
     }
     setError('');
     setSuccess('');
 
-    const result = onRegister(email, password, username, role, role === 'Moderador' ? reason : undefined);
-    
-    if (result.success) {
-      setSuccess(result.message);
-      if (role !== 'Moderador') {
-        // Clear form and switch to login after 2 seconds
-        setTimeout(() => {
+    try {
+      const result = await onRegister(email, password, username, role, role === 'Moderador' ? reason : undefined);
+      
+      if (result.success) {
+        setSuccess(result.message);
+        if (role !== 'Moderador') {
+          // Cambiar a login inmediatamente con los datos prellenados
+          // Los datos se pasarán automáticamente a través del contexto
+          setTimeout(() => {
+            setEmail('');
+            setPassword('');
+            setUsername('');
+            setRole('UsuarioBasico');
+            setReason('');
+            setSuccess('');
+            onToggleForm();
+          }, 1500);
+        } else {
+          // Clear form but stay on register form for moderator requests
           setEmail('');
           setPassword('');
           setUsername('');
           setRole('UsuarioBasico');
           setReason('');
-          setSuccess('');
-          onToggleForm();
-        }, 2000);
+        }
       } else {
-        // Clear form but stay on register form for moderator requests
-        setEmail('');
-        setPassword('');
-        setUsername('');
-        setRole('UsuarioBasico');
-        setReason('');
+        setError(result.message);
       }
-    } else {
-      setError(result.message);
+    } catch (error) {
+      // Solo mostrar errores reales, no errores de red esperados
+      if (error instanceof Error && !error.message.includes('fetch')) {
+        setError(error.message);
+      } else {
+        setError('Error al crear la cuenta. Por favor intenta de nuevo.');
+      }
     }
   };
 

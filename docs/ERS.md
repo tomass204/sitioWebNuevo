@@ -1,205 +1,435 @@
-# Especificación de Requisitos del Software (ERS)
-## GamingHub - Plataforma Web de Comunidad Gaming
+# Especificación de Requerimientos del Sistema (ERS)
+## Sistema de E-commerce
 
-### 1. Introducción
+---
 
-#### 1.1 Propósito
-Este documento describe los requisitos funcionales y no funcionales para GamingHub, una plataforma web desarrollada con React y Bootstrap que permite a los usuarios gestionar contenido gaming, participar en debates, y administrar una comunidad de jugadores.
+**Versión:** 1.0  
+**Fecha:** 2024  
+**Proyecto:** Sistema de E-commerce con Spring Boot y React
 
-#### 1.2 Alcance
-GamingHub es una aplicación web frontend desarrollada con React, TypeScript, y Bootstrap que proporciona:
-- Sistema de autenticación y gestión de usuarios
-- Publicación y gestión de noticias, debates y juegos
-- Sistema de carrito de compras
-- Funcionalidades de moderación
-- Diseño responsivo con Bootstrap
+---
 
-#### 1.3 Definiciones, Acrónimos y Abreviaciones
-- **ERS**: Especificación de Requisitos del Software
-- **UI**: User Interface (Interfaz de Usuario)
-- **UX**: User Experience (Experiencia de Usuario)
-- **API**: Application Programming Interface
-- **CRUD**: Create, Read, Update, Delete
+## 1. Introducción
 
-### 2. Descripción General
+### 1.1 Propósito del Documento
 
-#### 2.1 Perspectiva del Producto
-GamingHub es una aplicación web frontend que se integra con servicios backend para proporcionar una experiencia completa de comunidad gaming. La aplicación utiliza React como framework principal, Bootstrap para el diseño responsivo, y localStorage para el almacenamiento temporal de datos.
+Este documento especifica los requerimientos funcionales y no funcionales del sistema de e-commerce desarrollado con Spring Boot (backend) y React (frontend), incluyendo la gestión de productos, órdenes y usuarios con diferentes roles.
 
-#### 2.2 Funciones del Producto
-- **Autenticación de Usuarios**: Sistema de login y registro con diferentes roles
-- **Gestión de Contenido**: Publicación de noticias, debates y juegos
-- **Sistema de Comentarios**: Interacción entre usuarios
-- **Carrito de Compras**: Gestión de productos gaming
-- **Moderación**: Herramientas para moderadores y administradores
-- **Favoritos**: Sistema de guardado de contenido
+### 1.2 Alcance del Proyecto
 
-#### 2.3 Clases de Usuarios
-- **Usuario Básico**: Navegación, comentarios, favoritos
-- **Influencer**: Publicación de contenido
-- **Moderador**: Moderación de contenido y usuarios
-- **Propietario**: Administración completa
+El sistema permite:
+- Gestión de productos (CRUD)
+- Gestión de órdenes de compra
+- Autenticación y autorización basada en roles
+- Interfaz de usuario diferenciada según el rol
+- Comunicación REST entre frontend y backend
 
-### 3. Requisitos Funcionales
+### 1.3 Definiciones, Acrónimos y Abreviaciones
 
-#### 3.1 Gestión de Usuarios
-- **RF-001**: El sistema debe permitir el registro de nuevos usuarios
-- **RF-002**: El sistema debe validar credenciales de login
-- **RF-003**: El sistema debe gestionar diferentes roles de usuario
-- **RF-004**: El sistema debe permitir la actualización de perfiles
+- **ERS:** Especificación de Requerimientos del Sistema
+- **API:** Application Programming Interface
+- **REST:** Representational State Transfer
+- **JWT:** JSON Web Token
+- **CRUD:** Create, Read, Update, Delete
+- **JPA:** Java Persistence API
+- **Hibernate:** Framework de mapeo objeto-relacional
 
-#### 3.2 Gestión de Contenido
-- **RF-005**: El sistema debe permitir la publicación de noticias
-- **RF-006**: El sistema debe permitir la creación de debates
-- **RF-007**: El sistema debe permitir la publicación de juegos
-- **RF-008**: El sistema debe permitir comentarios en contenido
+---
 
-#### 3.3 Sistema de Comercio
-- **RF-009**: El sistema debe gestionar un carrito de compras
-- **RF-010**: El sistema debe calcular totales de compra
-- **RF-011**: El sistema debe procesar pagos (simulado)
+## 2. Descripción General
 
-#### 3.4 Moderación
-- **RF-012**: El sistema debe permitir la moderación de contenido
-- **RF-013**: El sistema debe gestionar advertencias a usuarios
-- **RF-014**: El sistema debe permitir el baneo temporal de usuarios
+### 2.1 Perspectiva del Producto
 
-### 4. Requisitos No Funcionales
+El sistema es una aplicación web de e-commerce que permite a diferentes tipos de usuarios interactuar con productos y órdenes según sus permisos.
 
-#### 4.1 Rendimiento
-- **RNF-001**: La aplicación debe cargar en menos de 3 segundos
-- **RNF-002**: Las transiciones entre componentes deben ser fluidas
-- **RNF-003**: El sistema debe manejar hasta 1000 usuarios concurrentes
+### 2.2 Funciones del Producto
 
-#### 4.2 Usabilidad
-- **RNF-004**: La interfaz debe ser intuitiva y fácil de usar
-- **RNF-005**: El diseño debe ser responsivo para dispositivos móviles
-- **RNF-006**: La navegación debe ser clara y consistente
+- **Gestión de Productos:** Crear, leer, actualizar y eliminar productos
+- **Gestión de Órdenes:** Crear y gestionar órdenes de compra
+- **Autenticación:** Sistema de login y registro con JWT
+- **Autorización:** Control de acceso basado en roles
+- **Interfaz de Usuario:** Vistas diferenciadas según el rol del usuario
 
-#### 4.3 Compatibilidad
-- **RNF-007**: La aplicación debe funcionar en Chrome, Firefox, Safari y Edge
-- **RNF-008**: La aplicación debe ser compatible con dispositivos móviles
-- **RNF-009**: La aplicación debe funcionar en pantallas de 320px a 1920px
+### 2.3 Características del Usuario
 
-#### 4.4 Seguridad
-- **RNF-010**: Los datos sensibles deben ser validados en el frontend
-- **RNF-011**: Las sesiones deben ser gestionadas de forma segura
-- **RNF-012**: Los roles de usuario deben ser respetados
+El sistema está dirigido a tres tipos de usuarios:
 
-### 5. Arquitectura del Sistema
+1. **Administrador:** Acceso total al sistema
+2. **Vendedor:** Puede visualizar productos y órdenes
+3. **Cliente:** Solo puede acceder a la tienda y realizar compras
 
-#### 5.1 Tecnologías Utilizadas
-- **Frontend**: React 18.2.0, TypeScript
-- **UI Framework**: Bootstrap 5.3.0, React Bootstrap 2.8.0
-- **Testing**: Jest, React Testing Library, Jasmine, Karma
-- **Build Tool**: Vite 4.0.0
-- **Styling**: CSS3, Bootstrap CSS
+### 2.4 Restricciones
 
-#### 5.2 Estructura de Componentes
-```
-src/
-├── components/
-│   ├── LoginForm.tsx
-│   ├── RegisterForm.tsx
-│   ├── MainContent.tsx
-│   ├── BanScreen.tsx
-│   └── tabs/
-│       ├── ProfileTab.tsx
-│       ├── NewsTab.tsx
-│       ├── DebatesTab.tsx
-│       ├── GamesTab.tsx
-│       ├── CartTab.tsx
-│       ├── FavoritosTab.tsx
-│       ├── ModerationTab.tsx
-│       └── AboutTab.tsx
-├── services/
-│   ├── AuthService.ts
-│   ├── UserService.ts
-│   ├── NewsService.ts
-│   ├── DebateService.ts
-│   └── GameService.ts
-└── __tests__/
-    ├── components/
-    └── services/
-```
+- El backend debe estar ejecutándose en el puerto 8082
+- La base de datos debe ser MySQL
+- El frontend requiere un navegador moderno con soporte para ES6+
+- Se requiere conexión a internet para cargar recursos externos
 
-### 6. Casos de Uso
+---
 
-#### 6.1 Autenticación
-**Caso de Uso**: Login de Usuario
-- **Actor**: Usuario
-- **Precondición**: Usuario no autenticado
-- **Flujo Principal**:
-  1. Usuario ingresa email y contraseña
-  2. Sistema valida credenciales
-  3. Sistema redirige al dashboard principal
-- **Postcondición**: Usuario autenticado en el sistema
+## 3. Requerimientos Funcionales
 
-#### 6.2 Publicación de Contenido
-**Caso de Uso**: Publicar Noticia
-- **Actor**: Influencer
-- **Precondición**: Usuario autenticado como Influencer
-- **Flujo Principal**:
-  1. Usuario navega a la sección de Noticias
-  2. Usuario completa formulario de nueva noticia
-  3. Sistema valida y guarda la noticia
-  4. Noticia aparece en la lista pública
+### 3.1 Gestión de Productos
 
-### 7. Diseño de Interfaz
+#### RF-001: Listar Productos
+- **Prioridad:** Alta
+- **Descripción:** El sistema debe permitir listar todos los productos activos disponibles.
+- **Entrada:** Ninguna (o filtros opcionales)
+- **Salida:** Lista de productos con sus detalles
+- **Procesamiento:** Consulta a la base de datos filtrando productos activos
 
-#### 7.1 Principios de Diseño
-- **Responsive Design**: Adaptable a diferentes tamaños de pantalla
-- **Material Design**: Uso de principios de Material Design
-- **Accesibilidad**: Cumplimiento de estándares WCAG 2.1
-- **Consistencia**: Diseño uniforme en toda la aplicación
+#### RF-002: Ver Detalle de Producto
+- **Prioridad:** Alta
+- **Descripción:** El sistema debe permitir ver los detalles completos de un producto específico.
+- **Entrada:** ID del producto
+- **Salida:** Información completa del producto
+- **Procesamiento:** Búsqueda del producto por ID
 
-#### 7.2 Componentes de UI
-- **Navbar**: Navegación principal con menú responsivo
-- **Cards**: Contenedores para contenido
-- **Forms**: Formularios con validación
-- **Modals**: Ventanas emergentes para acciones
-- **Buttons**: Botones con estados y variantes
+#### RF-003: Crear Producto
+- **Prioridad:** Alta
+- **Descripción:** Solo los administradores pueden crear nuevos productos.
+- **Entrada:** Datos del producto (nombre, descripción, precio, categoría, imagen)
+- **Salida:** Producto creado con ID asignado
+- **Procesamiento:** Validación de datos y persistencia en base de datos
 
-### 8. Testing
+#### RF-004: Actualizar Producto
+- **Prioridad:** Alta
+- **Descripción:** Solo los administradores pueden actualizar productos existentes.
+- **Entrada:** ID del producto y datos actualizados
+- **Salida:** Producto actualizado
+- **Procesamiento:** Validación y actualización en base de datos
 
-#### 8.1 Estrategia de Testing
-- **Unit Tests**: Pruebas unitarias para componentes y servicios
-- **Integration Tests**: Pruebas de integración entre componentes
-- **E2E Tests**: Pruebas end-to-end para flujos completos
+#### RF-005: Eliminar Producto
+- **Prioridad:** Media
+- **Descripción:** Solo los administradores pueden eliminar (desactivar) productos.
+- **Entrada:** ID del producto
+- **Salida:** Confirmación de eliminación
+- **Procesamiento:** Cambio de estado activo a inactivo
 
-#### 8.2 Cobertura de Testing
-- **Objetivo**: 80% de cobertura de código
-- **Herramientas**: Jest, React Testing Library, Jasmine, Karma
-- **Métricas**: Líneas de código, ramas, funciones, declaraciones
+#### RF-006: Buscar Productos
+- **Prioridad:** Media
+- **Descripción:** El sistema debe permitir buscar productos por nombre.
+- **Entrada:** Texto de búsqueda
+- **Salida:** Lista de productos que coinciden con la búsqueda
+- **Procesamiento:** Búsqueda parcial en el nombre del producto
 
-### 9. Despliegue y Mantenimiento
+#### RF-007: Filtrar por Categoría
+- **Prioridad:** Media
+- **Descripción:** El sistema debe permitir filtrar productos por categoría.
+- **Entrada:** Nombre de la categoría
+- **Salida:** Lista de productos de la categoría especificada
+- **Procesamiento:** Filtrado por categoría en base de datos
 
-#### 9.1 Despliegue
-- **Plataforma**: Netlify, Vercel, o similar
-- **Build**: Comando `npm run build`
-- **Variables de Entorno**: Configuración para diferentes ambientes
+---
 
-#### 9.2 Mantenimiento
-- **Monitoreo**: Herramientas de monitoreo de rendimiento
-- **Logs**: Sistema de logging para debugging
-- **Updates**: Actualizaciones regulares de dependencias
+### 3.2 Gestión de Órdenes
 
-### 10. Conclusiones
+#### RF-008: Listar Órdenes
+- **Prioridad:** Alta
+- **Descripción:** Vendedores y administradores pueden ver todas las órdenes.
+- **Entrada:** Ninguna
+- **Salida:** Lista de órdenes con sus detalles
+- **Procesamiento:** Consulta a la base de datos
 
-GamingHub representa una implementación moderna de una plataforma web gaming utilizando las mejores prácticas de desarrollo frontend con React, TypeScript, y Bootstrap. La aplicación cumple con todos los requisitos funcionales y no funcionales especificados, proporcionando una experiencia de usuario excepcional y un código mantenible y escalable.
+#### RF-009: Ver Detalle de Orden
+- **Prioridad:** Alta
+- **Descripción:** Vendedores y administradores pueden ver los detalles de una orden específica.
+- **Entrada:** ID de la orden
+- **Salida:** Información completa de la orden
+- **Procesamiento:** Búsqueda de la orden por ID
 
-#### 10.1 Logros Técnicos
-- ✅ Migración completa a React con TypeScript
-- ✅ Implementación de diseño responsivo con Bootstrap
-- ✅ Configuración de testing con Jest y Jasmine/Karma
-- ✅ Creación de 10+ pruebas unitarias
-- ✅ Arquitectura de componentes bien estructurada
-- ✅ Servicios modulares y reutilizables
+#### RF-010: Crear Orden
+- **Prioridad:** Alta
+- **Descripción:** Clientes y administradores pueden crear nuevas órdenes.
+- **Entrada:** Datos de la orden (usuario, productos, total)
+- **Salida:** Orden creada con ID asignado
+- **Procesamiento:** Validación y persistencia en base de datos
 
-#### 10.2 Cumplimiento de Requisitos
-- ✅ Framework JavaScript moderno (React)
-- ✅ Componentes React con gestión de estado
-- ✅ Diseño responsivo con Bootstrap
-- ✅ Pruebas unitarias con Jasmine y Karma
-- ✅ Proceso de testing implementado
-- ✅ Documentación ERS completa
+#### RF-011: Actualizar Orden
+- **Prioridad:** Media
+- **Descripción:** Solo los administradores pueden actualizar órdenes (principalmente el estado).
+- **Entrada:** ID de la orden y datos actualizados
+- **Salida:** Orden actualizada
+- **Procesamiento:** Validación y actualización en base de datos
+
+#### RF-012: Eliminar Orden
+- **Prioridad:** Baja
+- **Descripción:** Solo los administradores pueden eliminar órdenes.
+- **Entrada:** ID de la orden
+- **Salida:** Confirmación de eliminación
+- **Procesamiento:** Eliminación de la orden en base de datos
+
+#### RF-013: Filtrar Órdenes por Usuario
+- **Prioridad:** Media
+- **Descripción:** El sistema debe permitir ver las órdenes de un usuario específico.
+- **Entrada:** ID del usuario
+- **Salida:** Lista de órdenes del usuario
+- **Procesamiento:** Filtrado por usuario en base de datos
+
+#### RF-014: Filtrar Órdenes por Estado
+- **Prioridad:** Media
+- **Descripción:** El sistema debe permitir filtrar órdenes por estado (PENDIENTE, COMPLETADA, CANCELADA).
+- **Entrada:** Estado de la orden
+- **Salida:** Lista de órdenes con el estado especificado
+- **Procesamiento:** Filtrado por estado en base de datos
+
+---
+
+### 3.3 Autenticación y Autorización
+
+#### RF-015: Login de Usuario
+- **Prioridad:** Alta
+- **Descripción:** El sistema debe permitir a los usuarios iniciar sesión.
+- **Entrada:** Email y contraseña
+- **Salida:** Token JWT y información del usuario
+- **Procesamiento:** Validación de credenciales y generación de token
+
+#### RF-016: Registro de Usuario
+- **Prioridad:** Alta
+- **Descripción:** El sistema debe permitir registrar nuevos usuarios.
+- **Entrada:** Datos del usuario (email, contraseña, nombre, rol)
+- **Salida:** Usuario creado y token JWT
+- **Procesamiento:** Validación, hash de contraseña y persistencia
+
+#### RF-017: Control de Acceso por Roles
+- **Prioridad:** Alta
+- **Descripción:** El sistema debe restringir el acceso a funciones según el rol del usuario.
+- **Roles:**
+  - **ADMIN:** Acceso total
+  - **VENDEDOR:** Ver productos y órdenes
+  - **CLIENTE:** Solo tienda
+- **Procesamiento:** Validación de roles en cada endpoint
+
+---
+
+### 3.4 Interfaz de Usuario
+
+#### RF-018: Vista de Cliente
+- **Prioridad:** Alta
+- **Descripción:** Los clientes solo deben ver la tienda de productos.
+- **Funcionalidades:**
+  - Ver lista de productos
+  - Ver detalles de productos
+  - Agregar productos al carrito
+  - Crear órdenes
+
+#### RF-019: Vista de Vendedor
+- **Prioridad:** Alta
+- **Descripción:** Los vendedores deben ver productos y órdenes.
+- **Funcionalidades:**
+  - Ver lista de productos
+  - Ver detalles de productos
+  - Ver lista de órdenes
+  - Ver detalles de órdenes
+
+#### RF-020: Vista de Administrador
+- **Prioridad:** Alta
+- **Descripción:** Los administradores tienen acceso a todas las funciones.
+- **Funcionalidades:**
+  - Gestión completa de productos (CRUD)
+  - Gestión completa de órdenes (CRUD)
+  - Ver todas las órdenes
+
+---
+
+## 4. Requerimientos No Funcionales
+
+### 4.1 Rendimiento
+
+- **RNF-001:** Las consultas a la base de datos deben completarse en menos de 2 segundos.
+- **RNF-002:** La interfaz de usuario debe responder a las acciones del usuario en menos de 500ms.
+
+### 4.2 Seguridad
+
+- **RNF-003:** Las contraseñas deben almacenarse con hash (SHA-256 o superior).
+- **RNF-004:** Las comunicaciones deben usar JWT para autenticación.
+- **RNF-005:** Los endpoints deben validar los roles antes de permitir el acceso.
+
+### 4.3 Usabilidad
+
+- **RNF-006:** La interfaz debe ser intuitiva y fácil de usar.
+- **RNF-007:** Los mensajes de error deben ser claros y descriptivos.
+
+### 4.4 Compatibilidad
+
+- **RNF-008:** El sistema debe funcionar en los navegadores modernos (Chrome, Firefox, Edge, Safari).
+- **RNF-009:** El backend debe ser compatible con Java 17 o superior.
+
+### 4.5 Mantenibilidad
+
+- **RNF-010:** El código debe seguir buenas prácticas y estar documentado.
+- **RNF-011:** Las APIs deben estar versionadas (v1, v2) para facilitar la evolución.
+
+### 4.6 Documentación
+
+- **RNF-012:** El sistema debe incluir documentación de APIs (Swagger).
+- **RNF-013:** Debe existir documentación de integración con ejemplos.
+
+---
+
+## 5. Modelo de Datos
+
+### 5.1 Entidad: Producto
+
+| Campo | Tipo | Descripción | Restricciones |
+|-------|------|-------------|---------------|
+| productoId | Long | Identificador único | PK, Auto-incremento |
+| nombre | String | Nombre del producto | Requerido, No nulo |
+| descripcion | String | Descripción del producto | Opcional, Max 1000 caracteres |
+| precio | BigDecimal | Precio del producto | Requerido, No nulo |
+| categoria | String | Categoría del producto | Opcional |
+| imagenUrl | String | URL de la imagen | Opcional |
+| activo | Boolean | Estado del producto | Requerido, Default: true |
+
+### 5.2 Entidad: Orden
+
+| Campo | Tipo | Descripción | Restricciones |
+|-------|------|-------------|---------------|
+| ordenId | Long | Identificador único | PK, Auto-incremento |
+| usuarioId | Long | ID del usuario | Requerido, No nulo |
+| productoIds | List<Long> | Lista de IDs de productos | Requerido |
+| fecha | LocalDateTime | Fecha de la orden | Requerido, Auto-generado |
+| total | BigDecimal | Total de la orden | Requerido, No nulo |
+| estado | String | Estado de la orden | Requerido, Valores: PENDIENTE, COMPLETADA, CANCELADA |
+
+### 5.3 Entidad: Usuario
+
+| Campo | Tipo | Descripción | Restricciones |
+|-------|------|-------------|---------------|
+| id | Long | Identificador único | PK, Auto-incremento |
+| username | String | Nombre de usuario | Requerido, Único |
+| email | String | Correo electrónico | Requerido, Único |
+| password | String | Contraseña (hasheada) | Requerido |
+| roles | Set<Role> | Roles del usuario | Requerido |
+
+---
+
+## 6. Arquitectura del Sistema
+
+### 6.1 Backend (Spring Boot)
+
+- **Microservicio de Productos:** Puerto 8082
+- **Microservicio de Autenticación:** Puerto 8081
+- **Base de Datos:** MySQL
+- **Seguridad:** Spring Security con JWT
+- **Documentación:** Swagger/OpenAPI
+
+### 6.2 Frontend (React)
+
+- **Framework:** React 18
+- **Librerías:** React Bootstrap, Axios/Fetch
+- **Estado:** Context API
+- **Rutas:** React Router (si aplica)
+
+### 6.3 Comunicación
+
+- **Protocolo:** HTTP/HTTPS
+- **Formato:** JSON
+- **Autenticación:** JWT en header Authorization
+
+---
+
+## 7. Casos de Uso
+
+### 7.1 Caso de Uso: Cliente compra productos
+
+**Actor:** Cliente  
+**Precondiciones:** Usuario autenticado con rol CLIENTE  
+**Flujo Principal:**
+1. Cliente accede a la tienda
+2. Cliente visualiza lista de productos
+3. Cliente selecciona productos y los agrega al carrito
+4. Cliente crea una orden
+5. Sistema valida y crea la orden
+6. Sistema muestra confirmación
+
+**Flujo Alternativo:**
+- Si no hay productos disponibles, se muestra mensaje informativo
+- Si hay error al crear la orden, se muestra mensaje de error
+
+**Postcondiciones:** Orden creada en estado PENDIENTE
+
+---
+
+### 7.2 Caso de Uso: Vendedor visualiza órdenes
+
+**Actor:** Vendedor  
+**Precondiciones:** Usuario autenticado con rol VENDEDOR  
+**Flujo Principal:**
+1. Vendedor accede a la sección de órdenes
+2. Sistema muestra lista de todas las órdenes
+3. Vendedor puede ver detalles de cada orden
+4. Vendedor puede filtrar por estado
+
+**Postcondiciones:** Vendedor tiene visibilidad de todas las órdenes
+
+---
+
+### 7.3 Caso de Uso: Administrador gestiona productos
+
+**Actor:** Administrador  
+**Precondiciones:** Usuario autenticado con rol ADMIN  
+**Flujo Principal:**
+1. Administrador accede a gestión de productos
+2. Administrador puede crear, editar o eliminar productos
+3. Sistema valida los datos
+4. Sistema persiste los cambios
+5. Sistema muestra confirmación
+
+**Postcondiciones:** Productos actualizados en la base de datos
+
+---
+
+## 8. Herramientas y Tecnologías
+
+### 8.1 Backend
+
+- **Framework:** Spring Boot 3.x
+- **Lenguaje:** Java 17+
+- **Base de Datos:** MySQL 8.0
+- **ORM:** JPA/Hibernate
+- **Seguridad:** Spring Security + JWT
+- **Documentación:** Swagger/OpenAPI 3
+- **Build Tool:** Maven
+
+### 8.2 Frontend
+
+- **Framework:** React 18
+- **Lenguaje:** TypeScript
+- **UI Library:** React Bootstrap
+- **HTTP Client:** Fetch API
+- **Build Tool:** Vite
+
+### 8.3 Base de Datos
+
+- **SGBD:** MySQL
+- **Puerto:** 3306
+- **Nombre BD:** db_Product
+
+---
+
+## 9. Criterios de Aceptación
+
+### 9.1 Funcionalidad
+
+- ✅ Todos los endpoints REST funcionan correctamente
+- ✅ La autenticación y autorización funcionan según los roles
+- ✅ Las vistas se muestran correctamente según el rol del usuario
+- ✅ Los logs en consola muestran los movimientos del sistema
+
+### 9.2 Documentación
+
+- ✅ Documentación de APIs completa
+- ✅ Documentación de integración con ejemplos
+- ✅ Swagger configurado y accesible
+- ✅ Manual de usuario disponible
+
+### 9.3 Calidad
+
+- ✅ Código bien estructurado y documentado
+- ✅ Sin errores de compilación
+- ✅ Pruebas básicas funcionando
+
+---
+
+**Fin del Documento ERS**

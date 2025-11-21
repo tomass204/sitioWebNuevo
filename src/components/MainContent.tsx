@@ -10,6 +10,11 @@ import FavoritesTab from './tabs/FavoritesTab';
 import ProfileTab from './tabs/ProfileTab';
 import ModerationTab from './tabs/ModerationTab';
 import AboutTab from './tabs/AboutTab';
+import ProductosTab from './tabs/ProductosTab';
+import OrdenesTab from './tabs/OrdenesTab';
+import AdminProductosTab from './tabs/AdminProductosTab';
+import AdminGamesTab from './tabs/AdminGamesTab';
+import MisOrdenesTab from './tabs/MisOrdenesTab';
 
 interface MainContentProps {
   currentUser: User | null;
@@ -17,7 +22,7 @@ interface MainContentProps {
   onLogout: () => void;
 }
 
-type TabType = 'profile' | 'news' | 'debates' | 'games' | 'cart' | 'pendingPurchases' | 'favorites' | 'moderation' | 'about';
+type TabType = 'profile' | 'news' | 'debates' | 'games' | 'cart' | 'pendingPurchases' | 'favorites' | 'moderation' | 'about' | 'productos' | 'ordenes' | 'adminProductos' | 'adminGames' | 'misOrdenes';
 
 const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -55,6 +60,16 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
         return <ModerationTab currentUser={currentUser} currentRole={currentRole} />;
       case 'about':
         return <AboutTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'productos':
+        return <ProductosTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'ordenes':
+        return <OrdenesTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'adminProductos':
+        return <AdminProductosTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'adminGames':
+        return <AdminGamesTab currentUser={currentUser} currentRole={currentRole} />;
+      case 'misOrdenes':
+        return <MisOrdenesTab currentUser={currentUser} currentRole={currentRole} />;
       default:
         return <ProfileTab currentUser={currentUser} currentRole={currentRole} />;
     }
@@ -96,6 +111,65 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
               >
                 <i className="fas fa-gamepad me-1"></i> Juegos
               </Nav.Link>
+              {/* Vistas según rol del sitio web */}
+              {/* UsuarioBasico: Solo puede acceder a la tienda */}
+              {(currentRole === 'UsuarioBasico' || currentRole === 'ROLE_USUARIO_BASICO') && (
+                <>
+                  <Nav.Link
+                    onClick={() => handleTabChange('productos')}
+                    className={activeTab === 'productos' ? 'active' : ''}
+                  >
+                    <i className="fas fa-store me-1"></i> Tienda
+                  </Nav.Link>
+                  <Nav.Link
+                    onClick={() => handleTabChange('misOrdenes')}
+                    className={activeTab === 'misOrdenes' ? 'active' : ''}
+                  >
+                    <i className="fas fa-shopping-bag me-1"></i> Mis Órdenes
+                  </Nav.Link>
+                </>
+              )}
+              {/* Influencer: Puede ver productos y órdenes (solo lectura) */}
+              {(currentRole === 'Influencer' || currentRole === 'ROLE_INFLUENCER') && (
+                <>
+                  <Nav.Link
+                    onClick={() => handleTabChange('productos')}
+                    className={activeTab === 'productos' ? 'active' : ''}
+                  >
+                    <i className="fas fa-box me-1"></i> Productos
+                  </Nav.Link>
+                  <Nav.Link
+                    onClick={() => handleTabChange('ordenes')}
+                    className={activeTab === 'ordenes' ? 'active' : ''}
+                  >
+                    <i className="fas fa-shopping-bag me-1"></i> Órdenes
+                  </Nav.Link>
+                </>
+              )}
+              {/* Moderador y Propietario: Acceso total */}
+              {(currentRole === 'Moderador' || currentRole === 'ROLE_MODERADOR' ||
+                currentRole === 'Propietario' || currentRole === 'ROLE_PROPIETARIO') && (
+                <>
+                  <Nav.Link
+                    onClick={() => handleTabChange('adminProductos')}
+                    className={activeTab === 'adminProductos' ? 'active' : ''}
+                  >
+                    <i className="fas fa-box me-1"></i> Productos
+                  </Nav.Link>
+                  <Nav.Link
+                    onClick={() => handleTabChange('adminGames')}
+                    className={activeTab === 'adminGames' ? 'active' : ''}
+                  >
+                    <i className="fas fa-gamepad me-1"></i> Juegos
+                  </Nav.Link>
+                  <Nav.Link
+                    onClick={() => handleTabChange('ordenes')}
+                    className={activeTab === 'ordenes' ? 'active' : ''}
+                  >
+                    <i className="fas fa-shopping-bag me-1"></i> Órdenes
+                  </Nav.Link>
+                </>
+              )}
               <Nav.Link
                 onClick={() => handleTabChange('cart')}
                 className={activeTab === 'cart' ? 'active' : ''}

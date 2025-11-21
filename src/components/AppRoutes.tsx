@@ -33,8 +33,26 @@ const TabWrapper = ({ Component }: { Component: React.FC<any> }) => {
 };
 
 const LoginWrapper: React.FC = () => {
-  const { login, toggleForm } = useAuth();
-  return <LoginForm onLogin={login} onToggleForm={toggleForm} />;
+  const { login, toggleForm, pendingLoginData, clearPendingLoginData } = useAuth();
+  
+  React.useEffect(() => {
+    // Limpiar datos pendientes después de usarlos
+    if (pendingLoginData) {
+      const timer = setTimeout(() => {
+        clearPendingLoginData();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingLoginData, clearPendingLoginData]);
+  
+  return (
+    <LoginForm 
+      onLogin={login} 
+      onToggleForm={toggleForm}
+      initialEmail={pendingLoginData?.email || ''}
+      initialPassword={pendingLoginData?.password || ''}
+    />
+  );
 };
 
 const RegisterWrapper: React.FC = () => {

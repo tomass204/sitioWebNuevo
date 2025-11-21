@@ -4,15 +4,27 @@ import { Form, Button, Alert, Card } from 'react-bootstrap';
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
   onToggleForm: () => void;
+  initialEmail?: string;
+  initialPassword?: string;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onToggleForm }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onToggleForm, initialEmail = '', initialPassword = '' }) => {
+  const [email, setEmail] = useState(initialEmail);
+  const [password, setPassword] = useState(initialPassword);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  
+  // Actualizar campos cuando cambien los valores iniciales
+  React.useEffect(() => {
+    if (initialEmail) {
+      setEmail(initialEmail);
+    }
+    if (initialPassword) {
+      setPassword(initialPassword);
+    }
+  }, [initialEmail, initialPassword]);
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e && typeof e.preventDefault === 'function') {
       e.preventDefault();
     }
@@ -36,7 +48,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onToggleForm }) => {
     }
 
     try {
-      onLogin(email, password);
+      const result = await onLogin(email, password);
+      // Si onLogin retorna un resultado con error, mostrarlo
+      if (result && !result.success) {
+        setError(result.message || 'Error al iniciar sesión');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     }

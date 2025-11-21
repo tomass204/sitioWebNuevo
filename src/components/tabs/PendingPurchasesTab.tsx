@@ -13,6 +13,7 @@ interface PurchaseItem {
   total: number;
   status: string;
   downloadUrl?: string;
+  type?: string;
 }
 
 interface PendingPurchasesTabProps {
@@ -85,12 +86,17 @@ const PendingPurchasesTab: React.FC<PendingPurchasesTabProps> = ({ currentUser, 
       'Roblox': 'https://www.roblox.com/download'
     };
 
-    // Update purchases with download URLs
+    // Update purchases with download URLs and ensure total is calculated
     const updatedPurchases = purchasesData.map((purchase: PurchaseItem) => {
+      const updatedPurchase = { ...purchase };
       if (!purchase.downloadUrl && downloadUrls[purchase.title]) {
-        return { ...purchase, downloadUrl: downloadUrls[purchase.title] };
+        updatedPurchase.downloadUrl = downloadUrls[purchase.title];
       }
-      return purchase;
+      // Ensure total is calculated if missing
+      if (updatedPurchase.total === undefined || updatedPurchase.total === null) {
+        updatedPurchase.total = (updatedPurchase.price || 0) * (updatedPurchase.quantity || 1);
+      }
+      return updatedPurchase;
     });
 
     console.log('Purchase list retrieved successfully, status: 200');
@@ -98,16 +104,9 @@ const PendingPurchasesTab: React.FC<PendingPurchasesTabProps> = ({ currentUser, 
     setPurchases(updatedPurchases);
   };
 
-  const showDownloadLink = (item: PurchaseItem) => {
-    if (item.downloadUrl) {
-      alert(`Link de descarga para ${item.title}: ${item.downloadUrl}`);
-      console.log(`Link de descarga para ${item.title}: ${item.downloadUrl}`);
-    } else {
-      alert('No hay link de descarga disponible para este juego.');
-    }
-  };
 
-  const [visibleLinks, setVisibleLinks] = useState<{[key: string]: boolean}>({});
+
+
 
   return (
     <div>
@@ -140,26 +139,16 @@ const PendingPurchasesTab: React.FC<PendingPurchasesTabProps> = ({ currentUser, 
                       <span>Cantidad: {item.quantity}</span>
                     </Col>
                     <Col md={1}>
-                      <span className="fw-bold">${item.total.toFixed(2)}</span>
+                      <span className="fw-bold">${Number(item.total || 0).toFixed(2)}</span>
                     </Col>
                     <Col md={1}>
-                      <span className={`badge ${item.status === 'Comprado' ? 'bg-success' : 'bg-warning'}`}>{item.status}</span>
+                      <span className={`badge ${item.status === 'Completado' ? 'bg-success' : 'bg-warning'}`}>{item.status}</span>
                     </Col>
                     <Col md={3}>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => {
-                          setVisibleLinks(prev => ({ ...prev, [item.id]: !prev[item.id] }));
-                          showDownloadLink(item);
-                        }}
-                      >
-                        Mostrar Link
-                      </Button>
-                      {visibleLinks[item.id] && item.downloadUrl && (
-                        <div style={{ marginTop: '10px' }}>
-                          <small>Link: <a href={item.downloadUrl} target="_blank" rel="noopener noreferrer">{item.downloadUrl}</a></small>
-                        </div>
+                      {item.type === 'game' ? (
+                        <span className="text-info">Ve a "Mis Órdenes" para descargar 😜</span>
+                      ) : (
+                        <span className="text-muted">Producto físico - Sin descarga</span>
                       )}
                     </Col>
                   </Row>
