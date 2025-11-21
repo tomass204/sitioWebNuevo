@@ -210,9 +210,9 @@ const MainContent: React.FC<MainContentProps> = ({ currentUser, currentRole, onL
               <NavDropdown 
                 title={
                   <div className="d-flex align-items-center">
-                    <Image 
-                      src={currentUser?.profilePic || '/img/default_profile.png'} 
-                      alt="Profile" 
+                    <Image
+                      src={currentUser?.profilePic || '/img/UsuarioBasico.png'}
+                      alt="Profile"
                       className="profile-pic me-2"
                     />
                     <span>Bienvenido, {currentRole}</span>

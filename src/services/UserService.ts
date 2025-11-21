@@ -190,14 +190,14 @@ export class UserService {
   static getRoleProfilePic(role: string): string {
     switch (role) {
       case 'Influencer':
-        return 'img/Influencer.png';
+        return '/img/Influencer.png';
       case 'Moderador':
-        return 'img/Moderador.png';
+        return '/img/Moderador.png';
       case 'Propietario':
-        return 'img/Propietario.png';
+        return '/img/Propietario.png';
       case 'UsuarioBasico':
       default:
-        return 'img/UsuarioBasico.png';
+        return '/img/UsuarioBasico.png';
     }
   }
 

@@ -441,12 +441,16 @@ const CartTab: React.FC<CartTabProps> = ({ currentUser, currentRole }) => {
       });
       setShowPaymentModal(false);
 
-      // Clear cart
-      setGamesCart([]);
-      setProductsCart([]);
-      updateLocalStorage([], []);
-      setGamesTotal(0);
-      setProductsTotal(0);
+      // Clear only the purchased cart section
+      if (currentCheckoutType === 'games') {
+        setGamesCart([]);
+        updateLocalStorage([], productsCart);
+        setGamesTotal(0);
+      } else {
+        setProductsCart([]);
+        updateLocalStorage(gamesCart, []);
+        setProductsTotal(0);
+      }
     } catch (error) {
       console.error('Error during purchase:', error);
       if (error instanceof Error) {

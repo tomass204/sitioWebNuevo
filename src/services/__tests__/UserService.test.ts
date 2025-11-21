@@ -239,14 +239,14 @@ describe('UserService', () => {
 
   describe('getRoleProfilePic', () => {
     it('should return correct profile pic for each role', () => {
-      expect(UserService.getRoleProfilePic('UsuarioBasico')).toBe('img/UsuarioBasico.png');
-      expect(UserService.getRoleProfilePic('Influencer')).toBe('img/Influencer.png');
-      expect(UserService.getRoleProfilePic('Moderador')).toBe('img/Moderador.png');
-      expect(UserService.getRoleProfilePic('Propietario')).toBe('img/Propietario.png');
-      // Note: The actual implementation returns 'img/UsuarioBasico.png' for all roles
+    expect(UserService.getRoleProfilePic('UsuarioBasico')).toBe('/img/UsuarioBasico.png');
+      expect(UserService.getRoleProfilePic('Influencer')).toBe('/img/Influencer.png');
+      expect(UserService.getRoleProfilePic('Moderador')).toBe('/img/Moderador.png');
+      expect(UserService.getRoleProfilePic('Propietario')).toBe('/img/Propietario.png');
+      // Note: The actual implementation returns '/img/UsuarioBasico.png' for all roles
       // This is a temporary fix to match the current implementation
-      expect(UserService.getRoleProfilePic('Admin')).toBe('img/UsuarioBasico.png');
-      expect(UserService.getRoleProfilePic('unknown')).toBe('img/UsuarioBasico.png');
+      expect(UserService.getRoleProfilePic('Admin')).toBe('/img/UsuarioBasico.png');
+      expect(UserService.getRoleProfilePic('unknown')).toBe('/img/UsuarioBasico.png');
     });
   });
 });
