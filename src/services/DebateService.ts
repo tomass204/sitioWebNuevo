@@ -1,15 +1,7 @@
-const storage = (() => {
-  try {
-    localStorage.setItem('test', 'test');
-    localStorage.removeItem('test');
-    return localStorage;
-  } catch (e) {
-    return {
-      getItem: (key: string) => (window as any)[key] || '[]',
-      setItem: (key: string, value: string) => (window as any)[key] = value
-    };
-  }
-})();
+/**
+ * Simplify storage access to use localStorage directly to avoid inconsistencies with tests mocking.
+ */
+const storage = localStorage;
 
 export interface DebateItem {
   id: string;
@@ -169,7 +161,7 @@ export class DebateService {
         comment.favorite = !comment.favorite;
 
         // Update favorites in storage
-        const favorites = JSON.parse(storage.getItem('gaminghub_favorites') || '[]');
+        const favorites = JSON.parse(localStorage.getItem('gaminghub_favorites') || '[]');
         if (comment.favorite) {
           // Add to favorites
           const favoriteItem = {
@@ -183,12 +175,12 @@ export class DebateService {
             createdAt: comment.createdAt
           };
           favorites.push(favoriteItem);
-          storage.setItem('gaminghub_favorites', JSON.stringify(favorites));
+          localStorage.setItem('gaminghub_favorites', JSON.stringify(favorites));
           console.log(`Comentario favorito en debate ID: ${debateId}, Usuario ID: ${comment.author}, Comentario: ${comment.text}`);
         } else {
           // Remove from favorites
           const updatedFavorites = favorites.filter((fav: any) => fav.id !== comment.id);
-          storage.setItem('gaminghub_favorites', JSON.stringify(updatedFavorites));
+          localStorage.setItem('gaminghub_favorites', JSON.stringify(updatedFavorites));
           console.log('Comment removed from favorites');
         }
         // Dispatch event to update FavoritesTab
