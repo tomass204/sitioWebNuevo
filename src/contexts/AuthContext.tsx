@@ -3,6 +3,7 @@ import { AuthService } from '../services/AuthService';
 import { UserService } from '../services/UserService';
 
 interface User {
+  id?: number;
   email: string;
   username: string;
   role: string;
@@ -27,6 +28,8 @@ interface AuthContextType {
   showLogin: boolean;
   pendingLoginData: { email: string; password: string } | null;
   clearPendingLoginData: () => void;
+  hasRole: (requiredRole: string) => boolean;
+  isAuthenticated: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,13 +53,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Initialize default users if they don't exist
       UserService.initializeDefaultUsers();
 
-      // Ensure owner account exists
-      let ownerUser = UserService.getUser('propietario@gmail.com');
-      if (!ownerUser) {
-        console.log('Owner account not found, creating it...');
-        UserService.createUser('propietario@gmail.com', '123456', 'Propietario2', 'Propietario');
-        ownerUser = UserService.getUser('propietario@gmail.com');
-      }
+      // Note: Owner account should be created in the backend database
+      // This frontend no longer manages user creation locally
 
       // Check for existing session
       const savedUserEmail = localStorage.getItem('currentUser');
@@ -69,24 +67,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const { AuthServiceBackend } = await import('../services/AuthServiceBackend');
           // For now, just check if token exists (since verifyToken doesn't exist)
           if (savedToken && savedToken.length > 0) {
-        const user = UserService.getUser(savedUserEmail);
-        if (user && user.role === savedRole) {
-          // Check if user is banned
-          if (user.bannedUntil && user.bannedUntil > Date.now()) {
-            setIsBanned(true);
-            const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
-            setBanTimeRemaining(remaining);
-            return;
-          }
+            const user = UserService.getUser(savedUserEmail);
+            if (user && user.role === savedRole) {
+              // Check if user is banned
+              if (user.bannedUntil && user.bannedUntil > Date.now()) {
+                setIsBanned(true);
+                const remaining = Math.ceil((user.bannedUntil - Date.now()) / (60 * 1000));
+                setBanTimeRemaining(remaining);
+                return;
+              }
 
-          // Asegurar que tenga profilePic basado en el rol
-          if (!user.profilePic) {
-            user.profilePic = UserService.getRoleProfilePic(user.role);
-          }
+              // Asegurar que tenga profilePic basado en el rol
+              if (!user.profilePic) {
+                user.profilePic = UserService.getRoleProfilePic(user.role);
+              }
 
-          setCurrentUser(user);
-          setCurrentRole(user.role);
-          setIsLoggedIn(true);
+              setCurrentUser(user);
+              setCurrentRole(user.role);
+              setIsLoggedIn(true);
 
               // Restore active tab
               const savedActiveTab = localStorage.getItem('activeTab');
@@ -150,7 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Intentar con AuthServiceBackend primero
       const { AuthServiceBackend } = await import('../services/AuthServiceBackend');
       const result = await AuthServiceBackend.login(email, password);
-      
+
       if (result.success && result.user) {
         const user = result.user;
         if (user.bannedUntil && user.bannedUntil > Date.now()) {
@@ -160,10 +158,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return { success: false, message: 'Tu cuenta está suspendida temporalmente' };
         }
 
-        setCurrentUser(user);
+        // Map usuarioID to id for compatibility
+        const mappedUser = {
+          ...user,
+          id: user.usuarioID || user.id
+        };
+
+        setCurrentUser(mappedUser);
         setCurrentRole(user.role);
         setIsLoggedIn(true);
-        
+
         // Limpiar datos pendientes después de login exitoso
         setPendingLoginData(null);
 
@@ -175,7 +179,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         // Save current active tab
         localStorage.setItem('activeTab', activeTab);
-        
+
         return { success: true };
       } else {
         // Si el backend falló, intentar con servicio local como fallback
@@ -186,18 +190,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (!user.profilePic) {
             user.profilePic = UserService.getRoleProfilePic(user.role);
           }
-          setCurrentUser(user);
+          // Map usuarioID to id for compatibility
+          const mappedUser = {
+            ...user,
+            id: (user as any).usuarioID || (user as any).id || 0
+          };
+          setCurrentUser(mappedUser);
           setCurrentRole(user.role);
           setIsLoggedIn(true);
           setPendingLoginData(null);
-        localStorage.setItem('currentUser', email);
-        localStorage.setItem('currentRole', user.role);
-        localStorage.setItem('token', 'local-session-token');
-        // Save current active tab
-        localStorage.setItem('activeTab', activeTab);
+          localStorage.setItem('currentUser', email);
+          localStorage.setItem('currentRole', user.role);
+          localStorage.setItem('token', 'local-session-token');
+          // Save current active tab
+          localStorage.setItem('activeTab', activeTab);
           return { success: true };
         }
-        
+
         // Retornar el mensaje de error del backend
         return { success: false, message: result.message || 'Credenciales incorrectas' };
       }
@@ -223,7 +232,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (localError) {
         // Ignorar errores del servicio local también
       }
-      
+
       return { success: false, message: 'Error al conectar con el servidor. Verifica tu conexión.' };
     }
   };
@@ -233,13 +242,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Intentar con AuthServiceBackend primero
       const { AuthServiceBackend } = await import('../services/AuthServiceBackend');
       const result = await AuthServiceBackend.register(email, password, username, role);
-      
+
       // Si el registro fue exitoso y no es Moderador, guardar datos para login automático
       if (result.success && role !== 'Moderador') {
         setPendingLoginData({ email, password });
         setShowLogin(true); // Cambiar a formulario de login
       }
-      
+
       return result;
     } catch (error) {
       // Solo loguear errores reales, no errores esperados
@@ -248,17 +257,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       // Fallback a AuthService local
       const result = AuthService.register(email, password, username, role, reason);
-      
+
       // Si el registro fue exitoso y no es Moderador, guardar datos para login automático
       if (result.success && role !== 'Moderador') {
         setPendingLoginData({ email, password });
         setShowLogin(true); // Cambiar a formulario de login
       }
-      
+
       return result;
     }
   };
-  
+
   const clearPendingLoginData = () => {
     setPendingLoginData(null);
   };
@@ -278,6 +287,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setShowLogin(!showLogin);
   };
 
+  const hasRole = (requiredRole: string): boolean => {
+    if (!currentRole) return false;
+
+    // Mapeo de roles del frontend a roles del backend
+    const roleMapping: Record<string, string> = {
+      'UsuarioBasico': 'USUARIO_BASICO',
+      'Influencer': 'CREADOR_CONTENIDO',
+      'Moderador': 'MODERADOR',
+      'Propietario': 'PROPIETARIO'
+    };
+
+    const backendRole = roleMapping[currentRole] || currentRole;
+
+    // Jerarquía de roles según el backend
+    const roleHierarchy: Record<string, number> = {
+      'USUARIO_BASICO': 1,
+      'CREADOR_CONTENIDO': 2,
+      'MODERADOR': 3,
+      'PROPIETARIO': 4
+    };
+
+    return (roleHierarchy[backendRole] || 0) >= (roleHierarchy[requiredRole] || 0);
+  };
+
+  const isAuthenticated = (): boolean => {
+    return isLoggedIn;
+  };
+
   const value: AuthContextType = {
     currentUser,
     currentRole,
@@ -293,6 +330,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     showLogin,
     pendingLoginData,
     clearPendingLoginData,
+    hasRole,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

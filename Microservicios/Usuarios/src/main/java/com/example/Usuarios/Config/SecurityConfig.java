@@ -1,32 +1,45 @@
 package com.example.Usuarios.Config;
 
+import com.example.Usuarios.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // Desactiva CSRF para APIs REST
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll() // permite libre acceso a todos los endpoints
-                .anyRequest().permitAll() // permite todo
+        http.csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("POST", "/api/GamingHub/v1/Usuario/iniciar-session").permitAll() // Login
+                .requestMatchers("POST", "/api/GamingHub/v1/Usuario").permitAll() // Registration
+                .requestMatchers("PUT", "/api/GamingHub/v1/Usuario/recuperar-contrasena").permitAll() // Password recovery
+                .requestMatchers("GET", "/api/GamingHub/v1/Usuario/**").authenticated() // View users
+                .requestMatchers("PUT", "/api/GamingHub/v1/Usuario/**").hasAnyRole("MODERADOR", "PROPIETARIO") // Edit users
+                .requestMatchers("PATCH", "/api/GamingHub/v1/Usuario/**").hasAnyRole("MODERADOR", "PROPIETARIO") // Change status
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .anyRequest().authenticated()
             )
-            .httpBasic(basic -> basic.disable()); // Desactiva autenticación básica
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-
 }
 
 

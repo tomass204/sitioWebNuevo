@@ -1,9 +1,11 @@
 package com.example.Product.service;
 
-import com.example.Product.repository.OrdenRepository;
-import com.example.Product.model.Orden;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.Product.model.Orden;
+import com.example.Product.repository.OrdenRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,26 +26,8 @@ public class OrdenService {
     }
 
     public Orden createOrden(Orden orden) {
-        // Establecer fecha automáticamente si no viene
-        if (orden.getFecha() == null) {
-            orden.setFecha(LocalDateTime.now());
-        }
-        // Asegurar que el estado esté establecido
-        if (orden.getEstado() == null || orden.getEstado().isEmpty()) {
-            orden.setEstado("PENDIENTE");
-        }
-        // Log para debugging
-        System.out.println("Creando orden:");
-        System.out.println("  - Usuario ID: " + orden.getUsuarioId());
-        System.out.println("  - Productos: " + orden.getProductoIds());
-        System.out.println("  - Total: " + orden.getTotal());
-        System.out.println("  - Estado: " + orden.getEstado());
-        System.out.println("  - Fecha: " + orden.getFecha());
-
-        Orden savedOrden = ordenRepository.save(orden);
-
-        System.out.println("Orden creada exitosamente con ID: " + savedOrden.getOrdenId());
-        return savedOrden;
+        orden.setFecha(LocalDateTime.now());
+        return ordenRepository.save(orden);
     }
 
     public Orden updateOrden(Long id, Orden ordenDetails) {
@@ -72,5 +56,11 @@ public class OrdenService {
 
     public List<Orden> getOrdenesByEstado(String estado) {
         return ordenRepository.findByEstado(estado);
+    }
+
+    public boolean isOwner(Long id, String userId) {
+        return getOrdenById(id)
+                .map(orden -> orden.getUsuarioId().toString().equals(userId))
+                .orElse(false);
     }
 }

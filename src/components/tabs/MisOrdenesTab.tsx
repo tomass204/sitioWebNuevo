@@ -62,25 +62,13 @@ const MisOrdenesTab: React.FC<MisOrdenesTabProps> = ({ currentUser, currentRole 
     setLoading(true);
     setError(null);
     try {
-      // Obtener usuarioId
-      let usuarioId = (currentUser as any)?.usuarioID;
-      if (!usuarioId) {
-        usuarioId = await UsuarioService.getCurrentUsuarioId();
-      }
-
-      if (!usuarioId) {
-        setError('No se pudo obtener el ID del usuario');
-        setLoading(false);
-        return;
-      }
-
-      console.log(`GET /v1/ordenes/usuario/${usuarioId} - Obteniendo órdenes del usuario`);
-      const data = await OrdenService.getOrdenesByUsuario(usuarioId);
-      console.log(`GET /v1/ordenes/usuario/${usuarioId} - Status: 200 - Éxito`);
+      console.log(`GET /v1/ordenes/usuario/${currentUser.id} - Obteniendo órdenes del usuario`);
+      const data = await OrdenService.getOrdenesByUsuario(currentUser.id);
+      console.log(`GET /v1/ordenes/usuario/${currentUser.id} - Status: 200 - Éxito`);
       console.log(`Órdenes obtenidas: ${data.length}`);
       setOrdenes(data);
     } catch (err) {
-      setError('Error al cargar tus órdenes. Verifica que el backend esté corriendo.');
+      setError('Error al cargar las órdenes. Verifica que el backend esté corriendo.');
       console.error('Error loading ordenes:', err);
     } finally {
       setLoading(false);
@@ -120,7 +108,7 @@ const MisOrdenesTab: React.FC<MisOrdenesTabProps> = ({ currentUser, currentRole 
       <h2>Mis Órdenes</h2>
 
       {ordenes.length === 0 ? (
-        <Alert variant="info">No tienes órdenes aún. ¡Agrega productos al carrito y realiza tu primera compra!</Alert>
+        <Alert variant="info">No hay órdenes registradas aún.</Alert>
       ) : (
         <Table striped bordered hover>
           <thead>

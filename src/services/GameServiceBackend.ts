@@ -1,4 +1,4 @@
-import { API_CONFIG, getAuthHeaders } from './config';
+import { API_CONFIG, getAuthHeaders, hasPermission } from './config';
 
 const API_BASE_URL = API_CONFIG.GAME_SERVICE;
 
@@ -33,6 +33,9 @@ export class GameServiceBackend {
 
   static async getAllGames(): Promise<GameItem[]> {
     console.log('GET /v1/juegos - Obteniendo todos los juegos');
+    if (!hasPermission('GET', '/v1/juegos')) {
+      throw new Error('No tienes permisos para ver juegos');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos`, {
         method: 'GET',
@@ -88,6 +91,9 @@ export class GameServiceBackend {
 
   static async getGameById(id: number): Promise<GameItem | null> {
     console.log(`GET /v1/juegos/${id} - Obteniendo juego por ID`);
+    if (!hasPermission('GET', '/v1/juegos/**')) {
+      throw new Error('No tienes permisos para ver juegos');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos/${id}`, {
         method: 'GET',
@@ -124,6 +130,9 @@ export class GameServiceBackend {
   static async createGame(gameData: Omit<GameItem, 'juegoId' | 'fechaCreacion'>): Promise<GameItem> {
     console.log('POST /v1/juegos - Creando nuevo juego');
     console.log('Parámetros:', gameData);
+    if (!hasPermission('POST', '/v1/juegos')) {
+      throw new Error('No tienes permisos para crear juegos');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos`, {
         method: 'POST',
@@ -171,6 +180,9 @@ export class GameServiceBackend {
   static async updateGame(id: number, gameData: Partial<GameItem>): Promise<GameItem> {
     console.log(`PUT /v1/juegos/${id} - Actualizando juego`);
     console.log('Parámetros:', gameData);
+    if (!hasPermission('PUT', '/v1/juegos/**')) {
+      throw new Error('No tienes permisos para actualizar juegos');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos/${id}`, {
         method: 'PUT',
@@ -236,6 +248,9 @@ export class GameServiceBackend {
 
   static async getGamesByCategoria(categoria: string): Promise<GameItem[]> {
     console.log(`GET /v1/juegos/categoria/${categoria} - Obteniendo juegos por categoría`);
+    if (!hasPermission('GET', '/v1/juegos/categoria/**')) {
+      throw new Error('No tienes permisos para ver juegos por categoría');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos/categoria/${encodeURIComponent(categoria)}`, {
         method: 'GET',
@@ -270,6 +285,9 @@ export class GameServiceBackend {
 
   static async searchGames(titulo: string): Promise<GameItem[]> {
     console.log(`GET /v1/juegos/search?titulo=${titulo} - Buscando juegos`);
+    if (!hasPermission('GET', '/v1/juegos/search')) {
+      throw new Error('No tienes permisos para buscar juegos');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos/search?titulo=${encodeURIComponent(titulo)}`, {
         method: 'GET',

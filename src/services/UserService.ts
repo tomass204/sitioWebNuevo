@@ -1,5 +1,7 @@
+import { API_CONFIG, getAuthHeaders, handleResponse } from './config';
+
 export interface User {
-  id: string;
+  id: number;
   email: string;
   password: string;
   username: string;
@@ -17,7 +19,186 @@ export interface PendingRequest {
   date: string;
 }
 
+const API_BASE_URL = API_CONFIG.USUARIOS_SERVICE;
+
 export class UserService {
+  // API Methods - Integración con backend
+
+  // POST /api/GamingHub/v1/Usuario/iniciar-session - permitAll
+  static async login(email: string, password: string): Promise<{ success: boolean; message?: string; user?: User }> {
+    console.log('POST /api/GamingHub/v1/Usuario/iniciar-session - Iniciando sesión');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario/iniciar-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        console.log(`POST /api/GamingHub/v1/Usuario/iniciar-session - Status: ${response.status} - Error`);
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`POST /api/GamingHub/v1/Usuario/iniciar-session - Status: ${response.status} - Éxito`);
+      return { success: true, user: data.user, message: data.message };
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  }
+
+  // POST /api/GamingHub/v1/Usuario - permitAll
+  static async register(email: string, password: string, username: string, role: string, reason?: string): Promise<{ success: boolean; message?: string }> {
+    console.log('POST /api/GamingHub/v1/Usuario - Registrando usuario');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, username, role, reason }),
+      });
+
+      if (!response.ok) {
+        console.log(`POST /api/GamingHub/v1/Usuario - Status: ${response.status} - Error`);
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`POST /api/GamingHub/v1/Usuario - Status: ${response.status} - Éxito`);
+      return { success: true, message: data.message };
+    } catch (error) {
+      console.error('Error al registrar usuario:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  }
+
+  // PUT /api/GamingHub/v1/Usuario/recuperar-contrasena - permitAll
+  static async recoverPassword(email: string): Promise<{ success: boolean; message?: string }> {
+    console.log('PUT /api/GamingHub/v1/Usuario/recuperar-contrasena - Recuperando contraseña');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario/recuperar-contrasena`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        console.log(`PUT /api/GamingHub/v1/Usuario/recuperar-contrasena - Status: ${response.status} - Error`);
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`PUT /api/GamingHub/v1/Usuario/recuperar-contrasena - Status: ${response.status} - Éxito`);
+      return { success: true, message: data.message };
+    } catch (error) {
+      console.error('Error al recuperar contraseña:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  }
+
+  // GET /api/GamingHub/v1/Usuario/** - authenticated
+  static async getUserById(id: string): Promise<User> {
+    console.log(`GET /api/GamingHub/v1/Usuario/${id} - Obteniendo usuario por ID`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario/${id}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        console.log(`GET /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Error`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const user = await response.json();
+      console.log(`GET /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Éxito`);
+      return user;
+    } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      throw error;
+    }
+  }
+
+  // GET /api/GamingHub/v1/Usuario/** - authenticated
+  static async getAllUsers(): Promise<User[]> {
+    console.log('GET /api/GamingHub/v1/Usuario - Obteniendo todos los usuarios');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        console.log(`GET /api/GamingHub/v1/Usuario - Status: ${response.status} - Error`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const users = await response.json();
+      console.log(`GET /api/GamingHub/v1/Usuario - Status: ${response.status} - Éxito`);
+      return users;
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
+      throw error;
+    }
+  }
+
+  // PUT /api/GamingHub/v1/Usuario/** - MODERADOR, PROPIETARIO
+  static async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    console.log(`PUT /api/GamingHub/v1/Usuario/${id} - Actualizando usuario`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        console.log(`PUT /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Error`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const user = await response.json();
+      console.log(`PUT /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Éxito`);
+      return user;
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      throw error;
+    }
+  }
+
+  // PATCH /api/GamingHub/v1/Usuario/** - MODERADOR, PROPIETARIO
+  static async changeUserStatus(id: string, status: string): Promise<User> {
+    console.log(`PATCH /api/GamingHub/v1/Usuario/${id} - Cambiando estado del usuario`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/GamingHub/v1/Usuario/${id}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        console.log(`PATCH /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Error`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const user = await response.json();
+      console.log(`PATCH /api/GamingHub/v1/Usuario/${id} - Status: ${response.status} - Éxito`);
+      return user;
+    } catch (error) {
+      console.error('Error al cambiar estado del usuario:', error);
+      throw error;
+    }
+  }
+  // Legacy methods - Mantener para compatibilidad temporal (usar localStorage como fallback)
   private static getUsers(): { [key: string]: User } {
     return JSON.parse(localStorage.getItem('gaminghub_users') || '{}');
   }
@@ -26,165 +207,9 @@ export class UserService {
     localStorage.setItem('gaminghub_users', JSON.stringify(users));
   }
 
-  private static getPendingRequestsRaw(): PendingRequest[] {
-    const raw = localStorage.getItem('gaminghub_pending');
-    try {
-      const parsed = JSON.parse(raw || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private static savePendingRequests(requests: PendingRequest[]): void {
-    localStorage.setItem('gaminghub_pending', JSON.stringify(requests));
-  }
-
   static getUser(email: string): User | null {
     const users = this.getUsers();
     return users[email] || null;
-  }
-
-  static createUser(email: string, password: string, username: string, role: string): string {
-    const users = this.getUsers();
-    const id = this.generateNextId();
-    const profilePic = this.getRoleProfilePic(role);
-    users[email] = {
-      id,
-      email,
-      password,
-      username,
-      role,
-      warnings: [],
-      profilePic,
-      bannedUntil: 0,
-      banCount: 0
-    };
-    this.saveUsers(users);
-    return id;
-  }
-
-  private static generateNextId(): string {
-    const users = this.getUsers();
-    const ids = Object.values(users).map(user => parseInt(user.id)).filter(id => !isNaN(id));
-    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
-    return (maxId + 1).toString();
-  }
-
-  static updateUser(email: string, updates: Partial<User>): void {
-    const users = this.getUsers();
-    if (users[email]) {
-      users[email] = { ...users[email], ...updates };
-      this.saveUsers(users);
-    }
-  }
-
-  static addPendingRequest(email: string, username: string, reason: string): void {
-    const requests = this.getPendingRequestsRaw();
-    requests.push({
-      email,
-      username,
-      reason,
-      date: new Date().toISOString()
-    });
-    this.savePendingRequests(requests);
-  }
-
-  static getPendingRequests(): PendingRequest[] {
-    return this.getPendingRequestsRaw();
-  }
-
-  static approvePendingRequest(email: string, username: string): void {
-    const requests = this.getPendingRequestsRaw();
-    const index = requests.findIndex(req => req.email === email && req.username === username);
-    if (index !== -1) {
-      const request = requests[index];
-      requests.splice(index, 1);
-      this.savePendingRequests(requests);
-
-      // Create or update user to Moderator with the password they provided during registration
-      const users = this.getUsers();
-      if (users[email]) {
-        users[email].role = 'Moderador';
-        users[email].warnings = [];
-        users[email].profilePic = this.getRoleProfilePic('Moderador');
-        users[email].bannedUntil = 0;
-        users[email].banCount = 0;
-      } else {
-        // Get the password from the pending registration data stored in localStorage
-        const registrationData = JSON.parse(localStorage.getItem('gaminghub_pending_registration') || '{}');
-        const userPassword = registrationData[email]?.password || 'moderator123'; // fallback if not found
-
-        users[email] = {
-          id: this.generateNextId(),
-          email,
-          password: userPassword,
-          username,
-          role: 'Moderador',
-          warnings: [],
-          profilePic: this.getRoleProfilePic('Moderador'),
-          bannedUntil: 0,
-          banCount: 0
-        };
-
-        // Remove the pending registration data after approval
-        delete registrationData[email];
-        localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
-      }
-      this.saveUsers(users);
-    }
-  }
-
-  static rejectPendingRequest(email: string, username: string): void {
-    const requests = this.getPendingRequestsRaw();
-    const index = requests.findIndex(req => req.email === email && req.username === username);
-    if (index !== -1) {
-      requests.splice(index, 1);
-      this.savePendingRequests(requests);
-    }
-  }
-
-  static addWarning(email: string, comment: string): void {
-    const users = this.getUsers();
-    if (users[email]) {
-      // Clean expired warnings first
-      users[email].warnings = users[email].warnings.filter((w: any) => Date.now() - w.timestamp < 24 * 60 * 60 * 1000); // 24 hours
-
-      const warning = {
-        comment,
-        timestamp: Date.now(),
-        read: false,
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000 // Expires in 24 hours
-      };
-      users[email].warnings.push(warning);
-
-      const warningCount = users[email].warnings.length;
-      if (warningCount >= 3) {
-        users[email].banCount = (users[email].banCount || 0) + 1;
-        users[email].warnings = [];
-
-        if (users[email].banCount === 1) {
-          users[email].bannedUntil = Date.now() + 10 * 60 * 1000; // 10 minutes
-        } else if (users[email].banCount === 2) {
-          users[email].bannedUntil = Date.now() + 60 * 60 * 1000; // 1 hour
-        } else {
-          users[email].bannedUntil = Date.now() + 24 * 60 * 60 * 1000; // 1 day
-        }
-      }
-
-      this.saveUsers(users);
-    }
-  }
-
-  static getRemainingWarnings(email: string): number {
-    const users = this.getUsers();
-    if (users[email]) {
-      // Clean expired warnings
-      users[email].warnings = users[email].warnings.filter((w: any) => Date.now() - w.timestamp < 24 * 60 * 60 * 1000);
-      this.saveUsers(users);
-      return 3 - users[email].warnings.length;
-    }
-    return 3;
   }
 
   static getRoleProfilePic(role: string): string {
@@ -207,7 +232,7 @@ export class UserService {
       // Initialize with default users
       const defaultUsers = {
         'basic@gaminghub.com': {
-          id: '1',
+          id: 1,
           email: 'basic@gaminghub.com',
           password: 'pass',
           username: 'UsuarioBasico',
@@ -218,7 +243,7 @@ export class UserService {
           banCount: 0
         },
         'influencer@gaminghub.com': {
-          id: '2',
+          id: 2,
           email: 'influencer@gaminghub.com',
           password: 'pass',
           username: 'Influencer',
@@ -229,7 +254,7 @@ export class UserService {
           banCount: 0
         },
         'moderator@gaminghub.com': {
-          id: '3',
+          id: 3,
           email: 'moderator@gaminghub.com',
           password: 'pass',
           username: 'Moderador',
@@ -240,7 +265,7 @@ export class UserService {
           banCount: 0
         },
         'tomasgarrido512@gmail.com': {
-          id: '4',
+          id: 4,
           email: 'tomasgarrido512@gmail.com',
           password: '123456',
           username: 'Propietario',
@@ -251,7 +276,7 @@ export class UserService {
           banCount: 0
         },
         'propietario@gmail.com': {
-          id: '5',
+          id: 5,
           email: 'propietario@gmail.com',
           password: '123456',
           username: 'Propietario2',
@@ -264,5 +289,68 @@ export class UserService {
       };
       this.saveUsers(defaultUsers);
     }
+  }
+
+  static createUser(email: string, password: string, username: string, role: string): string {
+    const users = this.getUsers();
+    const userId = Date.now().toString(); // Simple ID generation
+    users[email] = {
+      id: parseInt(userId),
+      email,
+      password,
+      username,
+      role,
+      warnings: [],
+      profilePic: this.getRoleProfilePic(role),
+      bannedUntil: 0,
+      banCount: 0
+    };
+    this.saveUsers(users);
+    return userId;
+  }
+
+  static addPendingRequest(email: string, username: string, reason: string): void {
+    const pendingRequests = JSON.parse(localStorage.getItem('gaminghub_pending_requests') || '[]');
+    pendingRequests.push({
+      email,
+      username,
+      reason,
+      date: new Date().toISOString()
+    });
+    localStorage.setItem('gaminghub_pending_requests', JSON.stringify(pendingRequests));
+  }
+
+  static getPendingRequests(): PendingRequest[] {
+    return JSON.parse(localStorage.getItem('gaminghub_pending_requests') || '[]');
+  }
+
+  static approvePendingRequest(email: string): void {
+    const pendingRequests = this.getPendingRequests();
+    const request = pendingRequests.find(req => req.email === email);
+    if (request) {
+      // Remove from pending
+      const updatedRequests = pendingRequests.filter(req => req.email !== email);
+      localStorage.setItem('gaminghub_pending_requests', JSON.stringify(updatedRequests));
+
+      // Create user
+      const registrationData = JSON.parse(localStorage.getItem('gaminghub_pending_registration') || '{}');
+      if (registrationData[email]) {
+        const { password, username, role } = registrationData[email];
+        this.createUser(email, password, username, role);
+        delete registrationData[email];
+        localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
+      }
+    }
+  }
+
+  static rejectPendingRequest(email: string): void {
+    const pendingRequests = this.getPendingRequests();
+    const updatedRequests = pendingRequests.filter(req => req.email !== email);
+    localStorage.setItem('gaminghub_pending_requests', JSON.stringify(updatedRequests));
+
+    // Clean up registration data
+    const registrationData = JSON.parse(localStorage.getItem('gaminghub_pending_registration') || '{}');
+    delete registrationData[email];
+    localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
   }
 }

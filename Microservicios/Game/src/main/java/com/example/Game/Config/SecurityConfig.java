@@ -28,7 +28,10 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/v1/juegos", "/v1/juegos/**").permitAll() // Public access for viewing games
+                .requestMatchers("GET", "/v1/juegos", "/v1/juegos/**").hasAnyRole("USUARIO_BASICO", "CREADOR_CONTENIDO", "MODERADOR", "PROPIETARIO") // Viewing games for authenticated users
+                .requestMatchers("POST", "/v1/juegos").hasAnyRole("CREADOR_CONTENIDO", "MODERADOR", "PROPIETARIO") // Creating games for creators and above
+                .requestMatchers("PUT", "/v1/juegos/**").hasAnyRole("MODERADOR", "PROPIETARIO") // Updating games for moderators and owners
+                .requestMatchers("DELETE", "/v1/juegos/**").hasAnyRole("MODERADOR", "PROPIETARIO") // Deleting games for moderators and owners
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -37,4 +40,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

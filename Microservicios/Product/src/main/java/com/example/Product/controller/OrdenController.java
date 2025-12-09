@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,13 +15,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/ordenes")
 @Tag(name = "Orden", description = "API para gestión de órdenes")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "*"}, maxAge = 3600)
 public class OrdenController {
 
     @Autowired
     private OrdenService ordenService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_INFLUENCER') or hasRole('ROLE_MODERADOR') or hasRole('ROLE_PROPIETARIO')")
     @Operation(summary = "Obtener todas las órdenes")
     public ResponseEntity<List<Orden>> getAllOrdenes() {
         List<Orden> ordenes = ordenService.getAllOrdenes();
@@ -28,7 +29,7 @@ public class OrdenController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_INFLUENCER') or hasRole('ROLE_MODERADOR') or hasRole('ROLE_PROPIETARIO')")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Obtener orden por ID")
     public ResponseEntity<Orden> getOrdenById(@PathVariable Long id) {
         return ordenService.getOrdenById(id)
@@ -87,6 +88,7 @@ public class OrdenController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("permitAll()")
     @Operation(summary = "Obtener órdenes por usuario")
     public ResponseEntity<List<Orden>> getOrdenesByUsuario(@PathVariable Long usuarioId) {
         // Permitir que cualquier usuario autenticado vea sus propias órdenes

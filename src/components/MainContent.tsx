@@ -12,9 +12,10 @@ import ModerationTab from './tabs/ModerationTab';
 import AboutTab from './tabs/AboutTab';
 import ProductosTab from './tabs/ProductosTab';
 import OrdenesTab from './tabs/OrdenesTab';
+import MisOrdenesTab from './tabs/MisOrdenesTab';
 import AdminProductosTab from './tabs/AdminProductosTab';
 import AdminGamesTab from './tabs/AdminGamesTab';
-import MisOrdenesTab from './tabs/MisOrdenesTab';
+
 
 interface MainContentProps {
   currentUser: User | null;

@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.Usuarios.model.Usuario;
 import com.example.Usuarios.service.UsuarioService;
+
+import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -78,6 +81,7 @@ public class UsuarioController {
 
     @Operation(summary = "Cambiar estado de usuario", description = "Activa o desactiva un usuario")
     @PatchMapping("/cambiar-estado/{usuarioID}")
+    @PreAuthorize("hasRole('MODERADOR') or hasRole('PROPIETARIO')")
     public EntityModel<Usuario> cambiarEstado(@PathVariable Long usuarioID, @RequestParam boolean activar) {
         Usuario usuario = activar ? service.activar(usuarioID) : service.desactivar(usuarioID);
 
@@ -106,6 +110,7 @@ public class UsuarioController {
 
     @Operation(summary = "Buscar usuario por rol", description = "Obtiene un usuario según su rol")
     @GetMapping("/buscar-por-rol/{rol}")
+    @PreAuthorize("hasRole('MODERADOR') or hasRole('PROPIETARIO')")
     public ResponseEntity<EntityModel<Usuario>> buscarPorRol(@PathVariable String rol) {
         Usuario usuario = service.buscarPorRol(rol);
         EntityModel<Usuario> recurso = EntityModel.of(usuario,
@@ -140,6 +145,7 @@ public class UsuarioController {
 
     @Operation(summary = "Cambiar rol de usuario", description = "Cambia el rol de un usuario existente")
     @PutMapping("/cambiar-rol/{usuarioID}")
+    @PreAuthorize("hasRole('MODERADOR') or hasRole('PROPIETARIO')")
     public EntityModel<Usuario> cambiarRol(@PathVariable Long usuarioID, @RequestBody Map<String, String> body) {
         String nuevoRol = body.get("rol");
         Usuario usuario = service.cambiarRol(usuarioID, nuevoRol);
@@ -155,6 +161,7 @@ public class UsuarioController {
 
     @Operation(summary = "Cambiar contraseña", description = "Cambia la contraseña del usuario")
     @PutMapping("/cambiar-contrasena/{usuarioID}")
+    @PreAuthorize("isAuthenticated()")
     public EntityModel<Usuario> cambiarContrasena(@PathVariable Long usuarioID,
                                                   @RequestParam(name = "nuevaContrasena") String nuevaContrasena) {
         Usuario actualizado = service.cambiarContrasena(nuevaContrasena, usuarioID);

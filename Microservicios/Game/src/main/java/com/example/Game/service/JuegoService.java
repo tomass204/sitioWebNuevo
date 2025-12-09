@@ -23,42 +23,32 @@ public class JuegoService {
     }
 
     public Juego createJuego(Juego juego) {
-        // Establecer fecha de creación automáticamente si no viene
-        if (juego.getFechaCreacion() == null) {
-            juego.setFechaCreacion(java.time.LocalDateTime.now());
+        // Validar que el juego tenga todos los campos requeridos
+        if (juego.getTitulo() == null || juego.getTitulo().trim().isEmpty()) {
+            throw new IllegalArgumentException("El título es requerido");
         }
-        // Asegurar que el juego esté activo por defecto
+        if (juego.getCategoria() == null || juego.getCategoria().trim().isEmpty()) {
+            throw new IllegalArgumentException("La categoría es requerida");
+        }
+        if (juego.getAutor() == null || juego.getAutor().trim().isEmpty()) {
+            throw new IllegalArgumentException("El autor es requerido");
+        }
+        if (juego.getPrecio() == null || juego.getPrecio().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor o igual a cero");
+        }
+        if (juego.getImagenUrl() == null || juego.getImagenUrl().trim().isEmpty()) {
+            throw new IllegalArgumentException("La URL de la imagen es requerida");
+        }
+
+        // Establecer valores por defecto si no vienen
         if (juego.getActivo() == null) {
             juego.setActivo(true);
         }
-        
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("📥 CREANDO NUEVO JUEGO");
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("Título: " + juego.getTitulo());
-        System.out.println("Categoría: " + juego.getCategoria());
-        System.out.println("Descripción: " + juego.getDescripcion());
-        System.out.println("Autor: " + juego.getAutor());
-        System.out.println("Precio: " + juego.getPrecio());
-        System.out.println("Imagen URL: " + juego.getImagenUrl());
-        System.out.println("Activo: " + juego.getActivo());
-        System.out.println("Fecha Creación: " + juego.getFechaCreacion());
-        System.out.println("═══════════════════════════════════════════");
-        
-        Juego savedJuego = juegoRepository.save(juego);
-        
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("✅ JUEGO CREADO Y GUARDADO EN BASE DE DATOS");
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("Juego ID generado: " + savedJuego.getJuegoId());
-        System.out.println("Título: " + savedJuego.getTitulo());
-        System.out.println("Categoría: " + savedJuego.getCategoria());
-        System.out.println("Autor: " + savedJuego.getAutor());
-        System.out.println("Precio: " + savedJuego.getPrecio());
-        System.out.println("Fecha Creación: " + savedJuego.getFechaCreacion());
-        System.out.println("═══════════════════════════════════════════");
-        
-        return savedJuego;
+        if (juego.getFechaCreacion() == null) {
+            juego.setFechaCreacion(java.time.LocalDateTime.now());
+        }
+
+        return juegoRepository.save(juego);
     }
 
     public Juego updateJuego(Long id, Juego juegoDetails) {

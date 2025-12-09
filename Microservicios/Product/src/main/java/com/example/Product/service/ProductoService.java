@@ -1,9 +1,10 @@
-package main.java.com.example.Product.service;
+package com.example.Product.service;
 
-import main.java.com.example.Product.model.Producto;
-import main.java.com.example.Product.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.Product.model.Producto;
+import com.example.Product.repository.ProductoRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,19 @@ public class ProductoService {
     }
 
     public Producto createProducto(Producto producto) {
+        // Validar que el producto tenga todos los campos requeridos
+        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre es requerido");
+        }
+        if (producto.getPrecio() == null || producto.getPrecio().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor o igual a cero");
+        }
+
+        // Establecer valores por defecto si no vienen
+        if (producto.getActivo() == null) {
+            producto.setActivo(true);
+        }
+
         return productoRepository.save(producto);
     }
 

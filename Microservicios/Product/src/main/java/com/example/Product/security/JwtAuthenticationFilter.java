@@ -31,41 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Claims claims = Jwts.parser()
                         .setSigningKey(jwtSecret.getBytes())
-                        .build()
                         .parseClaimsJws(token)
                         .getBody();
 
                 String username = claims.getSubject();
                 String role = claims.get("role", String.class);
-                
-                // Mapear roles del sitio web a roles del backend
-                String roleWithPrefix;
-                if (role != null) {
-                    // Si viene con ROLE_ ya está bien
-                    if (role.startsWith("ROLE_")) {
-                        roleWithPrefix = role;
-                    } else {
-                        // Mapear roles del sitio web
-                        switch (role) {
-                            case "UsuarioBasico":
-                                roleWithPrefix = "ROLE_USUARIO_BASICO";
-                                break;
-                            case "Influencer":
-                                roleWithPrefix = "ROLE_INFLUENCER";
-                                break;
-                            case "Moderador":
-                                roleWithPrefix = "ROLE_MODERADOR";
-                                break;
-                            case "Propietario":
-                                roleWithPrefix = "ROLE_PROPIETARIO";
-                                break;
-                            default:
-                                roleWithPrefix = "ROLE_USUARIO_BASICO";
-                        }
-                    }
-                } else {
-                    roleWithPrefix = "ROLE_USUARIO_BASICO";
-                }
+
+                // Asegurar que el rol tenga el prefijo ROLE_ y esté en mayúsculas
+                String roleWithPrefix = role.startsWith("ROLE_") ? role : "ROLE_" + role.toUpperCase();
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(roleWithPrefix)));
@@ -75,5 +48,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+        // Exclude all order endpoints from JWT filter
+        return path.startsWith("/v1/ordenes") || 
+               path.startsWith("/swagger-ui") || 
+               path.startsWith("/v3/api-docs");
     }
 }

@@ -1,7 +1,7 @@
-package main.java.com.example.Product.controller;
+package com.example.Product.controller;
 
-import main.java.com.example.Product.model.Producto;
-import main.java.com.example.Product.service.ProductoService;
+import com.example.Product.model.Producto;
+import com.example.Product.service.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

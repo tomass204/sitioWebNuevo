@@ -25,11 +25,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // ⛔ Rutas públicas (NO validar JWT)
+        if (
+                path.startsWith("/v1/juegos") && (request.getMethod().equals("GET") || request.getMethod().equals("POST") || request.getMethod().equals("PUT")) ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs")
+        ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Token desde el header
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                Claims claims = Jwts.parser()
+                Claims claims = Jwts.parserBuilder()
                         .setSigningKey(jwtSecret.getBytes())
                         .build()
                         .parseClaimsJws(token)
@@ -37,42 +52,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 String username = claims.getSubject();
                 String role = claims.get("role", String.class);
-                
-                // Mapear roles del sitio web a roles del backend
-                String roleWithPrefix;
-                if (role != null) {
-                    if (role.startsWith("ROLE_")) {
-                        roleWithPrefix = role;
-                    } else {
-                        switch (role) {
-                            case "UsuarioBasico":
-                                roleWithPrefix = "ROLE_USUARIO_BASICO";
-                                break;
-                            case "Influencer":
-                                roleWithPrefix = "ROLE_INFLUENCER";
-                                break;
-                            case "Moderador":
-                                roleWithPrefix = "ROLE_MODERADOR";
-                                break;
-                            case "Propietario":
-                                roleWithPrefix = "ROLE_PROPIETARIO";
-                                break;
-                            default:
-                                roleWithPrefix = "ROLE_USUARIO_BASICO";
-                        }
-                    }
-                } else {
-                    roleWithPrefix = "ROLE_USUARIO_BASICO";
+
+                if (role == null) role = "CLIENTE";
+
+                // Agregar ROLE_ si falta
+                if (!role.startsWith("ROLE_")) {
+                    role = "ROLE_" + role;
                 }
 
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(roleWithPrefix)));
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(new SimpleGrantedAuthority(role))
+                        );
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (Exception e) {
-                // Invalid token
+                // Token inválido → NO bloquear, solo continuar sin autenticación
+                SecurityContextHolder.clearContext();
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }
-

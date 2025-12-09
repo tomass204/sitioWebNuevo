@@ -14,92 +14,136 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/juegos")
 @Tag(name = "Juego", description = "API para gestión de juegos")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:5174"}, maxAge = 3600)
 public class JuegoController {
 
     @Autowired
     private JuegoService juegoService;
 
     @GetMapping
-    @Operation(summary = "Obtener todos los juegos")
+    @Operation(summary = "Obtener todos los juegos activos")
     public ResponseEntity<List<Juego>> getAllJuegos() {
-        List<Juego> juegos = juegoService.getAllJuegos();
-        return ResponseEntity.ok(juegos);
+        try {
+            List<Juego> juegos = juegoService.getAllJuegos();
+            return ResponseEntity.ok(juegos);
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener juego por ID")
-    public ResponseEntity<Juego> getJuegoById(@PathVariable Long id) {
-        return juegoService.getJuegoById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getJuegoById(@PathVariable Long id) {
+        try {
+            return juegoService.getJuegoById(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("error", "Error al obtener el juego: " + e.getMessage()));
+        }
     }
 
-    @PostMapping
-    @PreAuthorize("hasRole('ROLE_MODERADOR') or hasRole('ROLE_PROPIETARIO')")
-    @Operation(summary = "Crear un nuevo juego")
-    public ResponseEntity<Juego> createJuego(@RequestBody Juego juego) {
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("📥 RECIBIENDO SOLICITUD DE CREAR JUEGO");
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("Título recibido: " + juego.getTitulo());
-        System.out.println("Categoría recibida: " + juego.getCategoria());
-        System.out.println("Descripción recibida: " + juego.getDescripcion());
-        System.out.println("Autor recibido: " + juego.getAutor());
-        System.out.println("Precio recibido: " + juego.getPrecio());
-        System.out.println("Imagen URL recibida: " + juego.getImagenUrl());
-        System.out.println("═══════════════════════════════════════════");
-        
+ @PostMapping
+@Operation(summary = "Crear un nuevo juego")
+public ResponseEntity<?> createJuego(@RequestBody Juego juego) {
+    try {
+        if (juego.getTitulo() == null || juego.getTitulo().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "El título es requerido"));
+        }
+        if (juego.getCategoria() == null || juego.getCategoria().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "La categoría es requerida"));
+        }
+        if (juego.getAutor() == null || juego.getAutor().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "El autor es requerido"));
+        }
+        if (juego.getPrecio() == null || juego.getPrecio().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "El precio debe ser mayor o igual a cero"));
+        }
+        if (juego.getImagenUrl() == null || juego.getImagenUrl().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "La URL de la imagen es requerida"));
+        }
+
+        if (juego.getActivo() == null) {
+            juego.setActivo(true);
+        }
+        if (juego.getFechaCreacion() == null) {
+            juego.setFechaCreacion(java.time.LocalDateTime.now());
+        }
+
         Juego createdJuego = juegoService.createJuego(juego);
-        
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("✅ JUEGO CREADO Y RETORNADO");
-        System.out.println("═══════════════════════════════════════════");
-        System.out.println("Juego ID: " + createdJuego.getJuegoId());
-        System.out.println("═══════════════════════════════════════════");
-        
-        return ResponseEntity.ok(createdJuego);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdJuego);
+
+    } catch (Exception e) {
+        return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(java.util.Map.of("error", "Error al crear el juego: " + e.getMessage()));
     }
+}
+
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_INFLUENCER') or hasRole('ROLE_MODERADOR') or hasRole('ROLE_PROPIETARIO')")
     @Operation(summary = "Actualizar juego")
-    public ResponseEntity<Juego> updateJuego(@PathVariable Long id, @RequestBody Juego juegoDetails) {
-        Juego updatedJuego = juegoService.updateJuego(id, juegoDetails);
-        if (updatedJuego != null) {
-            return ResponseEntity.ok(updatedJuego);
+    public ResponseEntity<?> updateJuego(@PathVariable Long id, @RequestBody Juego juegoDetails) {
+        try {
+            Juego updatedJuego = juegoService.updateJuego(id, juegoDetails);
+            if (updatedJuego != null) {
+                return ResponseEntity.ok(updatedJuego);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("error", "Error al actualizar el juego: " + e.getMessage()));
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_PROPIETARIO') or hasRole('ROLE_MODERADOR')")
-    @Operation(summary = "Eliminar juego")
-    public ResponseEntity<Void> deleteJuego(@PathVariable Long id) {
-        if (juegoService.deleteJuego(id)) {
-            return ResponseEntity.noContent().build();
+    @Operation(summary = "Eliminar juego (marca como inactivo)")
+    public ResponseEntity<?> deleteJuego(@PathVariable Long id) {
+        try {
+            if (juegoService.deleteJuego(id)) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("error", "Error al eliminar el juego: " + e.getMessage()));
         }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/categoria/{categoria}")
     @Operation(summary = "Obtener juegos por categoría")
     public ResponseEntity<List<Juego>> getJuegosByCategoria(@PathVariable String categoria) {
-        List<Juego> juegos = juegoService.getJuegosByCategoria(categoria);
-        return ResponseEntity.ok(juegos);
+        try {
+            List<Juego> juegos = juegoService.getJuegosByCategoria(categoria);
+            return ResponseEntity.ok(juegos);
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/search")
     @Operation(summary = "Buscar juegos por título")
     public ResponseEntity<List<Juego>> searchJuegos(@RequestParam String titulo) {
-        List<Juego> juegos = juegoService.searchJuegos(titulo);
-        return ResponseEntity.ok(juegos);
+        try {
+            if (titulo == null || titulo.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            List<Juego> juegos = juegoService.searchJuegos(titulo);
+            return ResponseEntity.ok(juegos);
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/autor/{autor}")
     @Operation(summary = "Obtener juegos por autor")
     public ResponseEntity<List<Juego>> getJuegosByAutor(@PathVariable String autor) {
-        List<Juego> juegos = juegoService.getJuegosByAutor(autor);
-        return ResponseEntity.ok(juegos);
+        try {
+            List<Juego> juegos = juegoService.getJuegosByAutor(autor);
+            return ResponseEntity.ok(juegos);
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
 

@@ -1,19 +1,21 @@
-package main.java.com.example.Product.controller;
+package com.example.Product.controller;
 
-import main.java.com.example.Product.model.Producto;
-import main.java.com.example.Product.service.ProductoService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import com.example.Product.model.Producto;
+import com.example.Product.service.ProductoService;
 
-@Tag(name = "Producto", description = "API para gestión de productos")
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/productos")
+@Tag(name = "Producto", description = "API para gestión de productos")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:5174"}, maxAge = 3600)
 public class ProductoController {
 
@@ -30,11 +32,9 @@ public class ProductoController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener producto por ID")
     public ResponseEntity<Producto> getProductoById(@PathVariable Long id) {
-        Producto producto = productoService.getProductoById(id);
-        if (producto != null) {
-            return ResponseEntity.ok(producto);
-        }
-        return ResponseEntity.notFound().build();
+        return productoService.getProductoById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -43,10 +43,10 @@ public class ProductoController {
         try {
             // Validar campos requeridos
             if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El nombre es requerido"));
+                return ResponseEntity.badRequest().body(java.util.Map.of("error", "El nombre es requerido"));
             }
             if (producto.getPrecio() == null || producto.getPrecio().compareTo(java.math.BigDecimal.ZERO) < 0) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El precio debe ser mayor o igual a cero"));
+                return ResponseEntity.badRequest().body(java.util.Map.of("error", "El precio debe ser mayor o igual a cero"));
             }
 
             // Establecer valores por defecto
@@ -58,7 +58,7 @@ public class ProductoController {
             return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(createdProducto);
         } catch (Exception e) {
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al crear el producto: " + e.getMessage()));
+                    .body(java.util.Map.of("error", "Error al crear el producto: " + e.getMessage()));
         }
     }
 
@@ -73,20 +73,17 @@ public class ProductoController {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al actualizar el producto: " + e.getMessage()));
+                    .body(java.util.Map.of("error", "Error al actualizar el producto: " + e.getMessage()));
         }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar producto")
-    public ResponseEntity<?> deleteProducto(@PathVariable Long id) {
-        try {
-            productoService.deleteProducto(id);
+    public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
+        if (productoService.deleteProducto(id)) {
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al eliminar el producto: " + e.getMessage()));
         }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/categoria/{categoria}")

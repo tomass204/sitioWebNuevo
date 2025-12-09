@@ -1,4 +1,4 @@
-import { API_CONFIG, getAuthHeaders, handleResponse } from './config';
+import { API_CONFIG, getAuthHeaders, handleResponse, hasPermission } from './config';
 
 const API_BASE_URL = API_CONFIG.PRODUCT_SERVICE;
 
@@ -18,14 +18,18 @@ export class ProductService {
     return getAuthHeaders();
   }
 
+  private static getPublicHeaders(): HeadersInit {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
   static async getAllProductos(): Promise<Producto[]> {
-    console.log('GET /v1/productos - Obteniendo todos los productos');
+    console.log('GET /v1/productos - Obteniendo todos los productos (endpoint público)');
     try {
       const response = await fetch(`${API_BASE_URL}/v1/productos`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getPublicHeaders(),
       });
       
       if (!response.ok) {

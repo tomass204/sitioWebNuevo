@@ -14,6 +14,11 @@ import FavoritesTab from "./tabs/FavoritesTab";
 import ProfileTab from "./tabs/ProfileTab";
 import ModerationTab from "./tabs/ModerationTab";
 import AboutTab from "./tabs/AboutTab";
+import HomeTab from "./tabs/HomeTab";
+import BlogsTab, { BlogDetail } from "./tabs/BlogsTab";
+import ContactTab from "./tabs/ContactTab";
+import CategoriasTab from "./tabs/CategoriasTab";
+import OfertasTab from "./tabs/OfertasTab";
 
 const MainWrapper: React.FC = () => {
   const { currentUser, currentRole, logout } = useAuth();
@@ -68,9 +73,21 @@ const LogoutWrapper: React.FC = () => {
   return <Navigate to="/login" replace />;
 };
 
+// Componente para páginas públicas (no requieren autenticación)
+const PublicPageWrapper = ({ Component }: { Component: React.FC<any> }) => {
+  return <Component />;
+};
+
 export const AppRoutes: React.FC = () => {
   const routes = useRoutes([
-    { path: "/", element: <MainWrapper /> },
+    { path: "/", element: <PublicPageWrapper Component={HomeTab} /> },
+    { path: "/home", element: <PublicPageWrapper Component={HomeTab} /> },
+    { path: "/blogs", element: <PublicPageWrapper Component={BlogsTab} /> },
+    { path: "/blogs/:id", element: <PublicPageWrapper Component={BlogDetail} /> },
+    { path: "/contacto", element: <PublicPageWrapper Component={ContactTab} /> },
+    { path: "/categorias", element: <PublicPageWrapper Component={CategoriasTab} /> },
+    { path: "/ofertas", element: <PublicPageWrapper Component={OfertasTab} /> },
+    { path: "/dashboard", element: <MainWrapper /> },
     { path: "/news", element: <TabWrapper Component={NewsTab} /> },
     { path: "/debates", element: <TabWrapper Component={DebatesTab} /> },
     { path: "/games", element: <TabWrapper Component={GamesTab} /> },

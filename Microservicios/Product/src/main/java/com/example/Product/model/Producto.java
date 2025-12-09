@@ -1,4 +1,4 @@
-package main.java.com.example.Product.model;
+package com.example.Product.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
