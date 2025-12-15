@@ -897,6 +897,42 @@ export class GameService {
     });
   }
 
+  static async getGamesByCategory(category: string): Promise<any[]> {
+    console.log('Calling GET GAMES BY CATEGORY endpoint with category:', category);
+    try {
+      const { GameServiceBackend } = await import('./GameServiceBackend');
+      const games = await GameServiceBackend.getGamesByCategoria(category);
+      console.log('Games by category retrieved successfully, count:', games.length);
+      return games;
+    } catch (error) {
+      console.error('Error fetching games by category from backend, falling back to localStorage:', error);
+      // Fallback to localStorage - convert frontend format to backend format for consistency
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const games = this.getGames();
+          const filteredGames = games.filter(game =>
+            game.category.toLowerCase() === category.toLowerCase()
+          );
+          // Convert to backend format
+          const backendFormatGames = filteredGames.map(game => ({
+            juegoId: parseInt(game.id),
+            titulo: game.title,
+            categoria: game.category,
+            descripcion: game.description,
+            imagenUrl: game.image,
+            autor: game.author,
+            precio: game.price,
+            fechaCreacion: game.createdAt,
+            downloadUrl: game.downloadUrl,
+            activo: true,
+          }));
+          console.log('Fallback search completed, found', backendFormatGames.length, 'games in category');
+          resolve(backendFormatGames);
+        }, 100);
+      });
+    }
+  }
+
   static async purchaseGame(userEmail: string, gameId: string): Promise<{ success: boolean; message: string; statusCode: number }> {
     console.log('Calling PURCHASE GAME endpoint for user:', userEmail, 'game:', gameId);
 

@@ -248,23 +248,21 @@ export class GameServiceBackend {
 
   static async getGamesByCategoria(categoria: string): Promise<GameItem[]> {
     console.log(`GET /v1/juegos/categoria/${categoria} - Obteniendo juegos por categoría`);
-    if (!hasPermission('GET', '/v1/juegos/categoria/**')) {
-      throw new Error('No tienes permisos para ver juegos por categoría');
-    }
+    // Category filtering is a public endpoint, no permission check needed
     try {
       const response = await fetch(`${API_BASE_URL}/v1/juegos/categoria/${encodeURIComponent(categoria)}`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
-      
+
       if (!response.ok) {
         console.log(`GET /v1/juegos/categoria/${categoria} - Status: ${response.status} - Error`);
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      
+
       const juegos = await response.json();
       console.log(`GET /v1/juegos/categoria/${categoria} - Status: ${response.status} - Éxito`);
-      
+
       return juegos.map((juego: any) => ({
         id: juego.juegoId.toString(),
         titulo: juego.titulo,

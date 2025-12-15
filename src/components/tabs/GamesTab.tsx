@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Row, Col, Modal, Alert, Badge, InputGroup, Form, Spinner } from 'react-bootstrap';
 import { User } from '../../services/AuthService';
 import { GameServiceBackend, GameItem } from '../../services/GameServiceBackend';
+import { GameService } from '../../services/GameService';
 import { SearchBar } from '../SearchBar';
 import { PreviousSearches } from '../PreviousSearches';
 
@@ -61,12 +62,14 @@ const GamesTab: React.FC<GamesTabProps> = ({ currentUser }) => {
     setLoading(true);
     setError(null);
     try {
-      const gamesByCategory = await GameServiceBackend.getGamesByCategoria(categoria);
+      const gamesByCategory = await GameService.getGamesByCategory(categoria);
       setFilteredGames(gamesByCategory);
       setSelectedCategory(categoria);
     } catch (error) {
-      setError('Error al filtrar juegos por categoría.');
+      console.error('Error filtering games by category:', error);
+      // Don't show error to user, just show empty results
       setFilteredGames([]);
+      setSelectedCategory(categoria);
     }
     setLoading(false);
   };
@@ -181,7 +184,7 @@ const GamesTab: React.FC<GamesTabProps> = ({ currentUser }) => {
       ) : (
         <Row>
           {displayGames.map((game) => (
-            <Col key={game.juegoId} md={4} className="mb-4">
+            <Col key={game.juegoId} xs={12} sm={6} md={4} lg={3} className="mb-4">
               <Card>
                 {game.imagenUrl && (
                   <Card.Img
