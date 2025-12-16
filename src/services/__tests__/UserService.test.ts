@@ -126,9 +126,13 @@ describe('UserService', () => {
 
   describe('createUser', () => {
     it('should create new user', () => {
+      // Mock Date.now to return a fixed value
+      const mockDate = 1234567890;
+      vi.spyOn(Date, 'now').mockReturnValue(mockDate);
+
       // Setup initial state - empty users
-      localStorageMock.setItem('users', JSON.stringify({}));
-      
+      localStorageMock.setItem('gaminghub_users', JSON.stringify({}));
+
       // Reset mocks after setup
       vi.clearAllMocks();
 
@@ -141,52 +145,46 @@ describe('UserService', () => {
       );
 
       // Verify the result (UserService returns the user ID on success)
-      expect(result).toBe('1');
-      
+      expect(result).toBe(mockDate.toString());
+
       // Verify localStorage was updated with the new user
       expect(localStorageMock.setItem).toHaveBeenCalledTimes(1);
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'gaminghub_users',
         expect.stringContaining('newuser@example.com')
       );
+
+      // Restore Date.now
+      vi.restoreAllMocks();
     });
   });
 
   describe('updateUser', () => {
-    it('should not update user if email does not exist', () => {
-      const existingUser = {
-        id: '123',
-        email: 'existing@example.com',
-        password: 'password123',
-        username: 'existinguser',
-        role: 'UsuarioBasico',
-        warnings: [],
-        profilePic: 'img/UsuarioBasico.png',
-        bannedUntil: 0,
-        banCount: 0
-      };
-
-      // Setup initial state with one user
-      localStorageMock.setItem('users', JSON.stringify({
-        'existing@example.com': existingUser
-      }));
-      
-      // Reset mocks after setup
-      vi.clearAllMocks();
+    it('should not update user if email does not exist', async () => {
+      // Mock fetch to simulate API call failure
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          json: () => Promise.resolve({ message: 'User not found' })
+        } as Response)
+      );
 
       // Try to update a non-existent user
-      const result = UserService.updateUser('nonexistent@example.com', { username: 'updateduser' });
+      await expect(UserService.updateUser('nonexistent@example.com', { username: 'updateduser' }))
+        .rejects
+        .toThrow('Error 404: Not Found');
 
-      // Verify the result (implementation returns undefined when user not found)
-      expect(result).toBeUndefined();
-      expect(localStorageMock.setItem).not.toHaveBeenCalled();
+      // Restore fetch
+      vi.restoreAllMocks();
     });
   });
 
   describe('addWarning', () => {
     it('should add warning to user', () => {
       const existingUser = {
-        id: '123',
+        id: 123,
         email: 'test@example.com',
         password: 'password123',
         username: 'testuser',
@@ -197,9 +195,13 @@ describe('UserService', () => {
         banCount: 0
       };
 
-      localStorageMock.getItem.mockReturnValue(JSON.stringify({
+      // Setup initial state with the user
+      localStorageMock.setItem('gaminghub_users', JSON.stringify({
         'test@example.com': existingUser
       }));
+
+      // Reset mocks after setup
+      vi.clearAllMocks();
 
       UserService.addWarning('test@example.com', 'Inappropriate content');
 
@@ -211,6 +213,7 @@ describe('UserService', () => {
 
     it('should ban user after 3 warnings', () => {
       const existingUser = {
+        id: 123,
         email: 'test@example.com',
         password: 'password123',
         username: 'testuser',
@@ -224,9 +227,13 @@ describe('UserService', () => {
         banCount: 0
       };
 
-      localStorageMock.getItem.mockReturnValue(JSON.stringify({
+      // Setup initial state with the user
+      localStorageMock.setItem('gaminghub_users', JSON.stringify({
         'test@example.com': existingUser
       }));
+
+      // Reset mocks after setup
+      vi.clearAllMocks();
 
       UserService.addWarning('test@example.com', 'Third warning');
 

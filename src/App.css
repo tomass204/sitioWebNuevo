@@ -358,6 +358,7 @@ html {
   background: linear-gradient(135deg, #ffed4e, #ff5252);
 }
 
+/*apartir de la linea 360 */ 
 
 @media (max-width: 1200px) {
   .tab-content {

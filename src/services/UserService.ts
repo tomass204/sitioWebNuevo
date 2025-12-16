@@ -353,4 +353,24 @@ export class UserService {
     delete registrationData[email];
     localStorage.setItem('gaminghub_pending_registration', JSON.stringify(registrationData));
   }
+
+  static addWarning(email: string, comment: string): void {
+    const users = this.getUsers();
+    const user = users[email];
+    if (user) {
+      user.warnings.push({
+        comment,
+        timestamp: Date.now(),
+        read: false
+      });
+
+      // Check if user should be banned (3 warnings)
+      if (user.warnings.length >= 3) {
+        user.bannedUntil = Date.now() + (24 * 60 * 60 * 1000); // Ban for 24 hours
+        user.banCount += 1;
+      }
+
+      this.saveUsers(users);
+    }
+  }
 }

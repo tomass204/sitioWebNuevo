@@ -157,17 +157,17 @@ const GamesTab: React.FC<GamesTabProps> = ({ currentUser }) => {
             value={selectedCategory}
             onChange={(e) => handleCategoryFilter(e.target.value)}
           >
-            <option value="">Todas las categorías</option>
-            <option value="Terror">Terror</option>
-            <option value="Carreras">Carreras</option>
-            <option value="Accion">Acción</option>
-            <option value="Aventura">Aventura</option>
-            <option value="Shooter">Shooter</option>
-            <option value="Deportes">Deportes</option>
-            <option value="Lucha">Lucha</option>
-            <option value="Simulación">Simulación</option>
-            <option value="Supervivencia">Supervivencia</option>
-            <option value="Musical">Musical</option>
+            <option key="all" value="">Todas las categorías</option>
+            <option key="Terror" value="Terror">Terror</option>
+            <option key="Carreras" value="Carreras">Carreras</option>
+            <option key="Accion" value="Accion">Acción</option>
+            <option key="Aventura" value="Aventura">Aventura</option>
+            <option key="Shooter" value="Shooter">Shooter</option>
+            <option key="Deportes" value="Deportes">Deportes</option>
+            <option key="Lucha" value="Lucha">Lucha</option>
+            <option key="Simulación" value="Simulación">Simulación</option>
+            <option key="Supervivencia" value="Supervivencia">Supervivencia</option>
+            <option key="Musical" value="Musical">Musical</option>
           </Form.Select>
         </Card.Body>
       </Card>

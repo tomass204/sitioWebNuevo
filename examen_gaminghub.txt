@@ -1,0 +1,50 @@
+**EXAMEN SOBRE GAMINGHUB - GUÍA DE ESTUDIO**
+
+**1. DESCRIPCIÓN GENERAL DEL SISTEMA:**
+- Plataforma web comunitaria para gamers
+- Frontend: React con componentes, hooks y Context API
+- Backend: Microservicios en Java/Spring Boot
+- Propósito: Comunidad gaming con tienda integrada
+
+**2. ARQUITECTURA TÉCNICA:**
+- Arquitectura frontend-backend separada
+- Servicios microservicios: AuthService, GameService, ProductService, UserService
+- Integración APIs RESTful con endpoints (/v1/juegos, /v1/productos, /v1/auth)
+- Manejo de estado: React Context + localStorage para persistencia
+- Llamadas backend: fetch() con autenticación JWT
+
+**3. ROLES DE USUARIO Y PERMISOS:**
+- Usuario Básico: Compras básicas en tienda, ver productos, gestionar carrito y pedidos
+- Influencer: Lecturas avanzadas de productos y órdenes (solo lectura)
+- Moderador: Gestión de contenido (debates, juegos, usuarios), banear, moderar
+- Propietario: Control total del sistema, todas las funcionalidades
+
+**4. FUNCIONALIDADES PRINCIPALES:**
+- Tienda de productos gaming: Carrito de compras, historial de pedidos, checkout
+- Noticias gaming: Lectura de noticias actualizadas
+- Foros de debates: Crear temas, comentar, likes, respuestas
+- Sistema de moderación: Gestionar usuarios, contenido, baneos
+- Gestión de perfiles: Autenticación JWT, favoritos, búsquedas previas
+- Juegos: Exploración, filtrado por categoría, detalles
+
+**5. ASPECTOS TÉCNICOS CLAVE:**
+- Diseño responsivo: Bootstrap con media queries (App.css) para móviles (iPhone, tablets)
+- Pruebas: Unitarias con Jest para servicios y componentes
+- Seguridad: CORS, validación de formularios, manejo de errores, JWT
+- Navegación: Pestañas intuitivas (Perfil, Noticias, Debates, Juegos, Tienda, etc.)
+
+**6. CASOS DE USO PRÁCTICOS:**
+- Proceso de compra: Agregar al carrito -> Checkout -> Confirmación de pedido
+- Participación en debates: Crear tema -> Comentar -> Likes/respuestas
+- Filtrado de juegos: Seleccionar categoría -> Mostrar resultados
+- Búsqueda de productos: Barra de búsqueda -> Resultados filtrados
+- Gestión de órdenes: Ver historial -> Detalles de pedidos
+- Moderación: Banear usuarios -> Gestionar contenido
+
+**7. CÓMO RESPONDER EFECTIVAMENTE EN EL EXAMEN:**
+- Estructura lógica: Descripción general -> Arquitectura -> Roles -> Funcionalidades -> Técnicos -> UX
+- Usa diagramas: Arquitectura microservicios, flujos de usuario
+- Cita archivos específicos: GameService.ts (backend), GamesTab.tsx (UI), config.ts (endpoints), AuthContext.tsx (estado)
+- Ejemplos de código: Hooks (useState/useEffect), fetch para APIs, componentes React
+- Demuestra dominio: Teórico (conceptos) + Práctico (código, flujos)
+- Respuestas concisas pero completas, con ejemplos reales del proyecto

@@ -13,8 +13,8 @@ export const PreviousSearches: FC<Props> = ({ searches, onLabelClicked, onRemove
         <>
           <h4>Búsquedas anteriores:</h4>
           <div className="searches-list">
-            {searches.map((search, index) => (
-              <div key={index} className="search-item">
+            {searches.map((search) => (
+              <div key={search} className="search-item">
                 <button
                   onClick={() => onLabelClicked(search)}
                   className="search-label"
